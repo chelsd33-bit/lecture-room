@@ -162,6 +162,7 @@ main.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax
 #postText { min-height: 84px; font-size: 16px; }
 .box-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 8px 16px; }
 .box-foot .hint { color: var(--muted); font-size: 12px; }
+@media (pointer: coarse) { .box-foot .hint { visibility: hidden; } }
 #qName { border: 0; background: none; min-width: 0; flex: 1; font-size: 13px; padding: 4px 0; }
 #qName:focus { outline: 0; }
 .send { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; background: var(--btn); color: var(--btn-ink); font-weight: 600; font-size: 14px; white-space: nowrap; }
