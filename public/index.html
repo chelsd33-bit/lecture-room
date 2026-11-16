@@ -324,7 +324,7 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
 
 <div id="toast" role="status" hidden></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/qrcode.js"></script>
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -592,8 +592,10 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
   $('postForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const t = $('postText').value.trim(); if (!t) return;
-    try { await call('POST', base + '/posts', { hostKey, text: t }); $('postText').value = ''; autosize($('postText')); }
-    catch (err) { toast(err.message); }
+    // 보내는 동안 이어서 입력해도 지워지지 않도록 먼저 비우고, 실패하면 되돌린다
+    $('postText').value = ''; autosize($('postText'));
+    try { await call('POST', base + '/posts', { hostKey, text: t }); }
+    catch (err) { if (!$('postText').value) { $('postText').value = t; autosize($('postText')); } toast(err.message); }
   });
   $('postText').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('postForm').requestSubmit(); }
@@ -604,8 +606,9 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     e.preventDefault();
     const t = $('qText').value.trim(); if (!t) return;
     const name = $('qName').value.trim(); store.set('name', name);
-    try { await call('POST', base + '/questions', { clientId, name, text: t }); $('qText').value = ''; autosize($('qText')); }
-    catch (err) { toast(err.message); }
+    $('qText').value = ''; autosize($('qText'));
+    try { await call('POST', base + '/questions', { clientId, name, text: t }); }
+    catch (err) { if (!$('qText').value) { $('qText').value = t; autosize($('qText')); } toast(err.message); }
   });
   $('qText').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('qForm').requestSubmit(); }

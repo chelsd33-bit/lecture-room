@@ -223,6 +223,12 @@ http.createServer((req, res) => {
     fs.createReadStream(INDEX).pipe(res);
     return;
   }
+  if (req.method === 'GET' && pathname === '/qrcode.js') {
+    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
+    fs.createReadStream(path.join(__dirname, 'public', 'qrcode.js')).pipe(res);
+    return;
+  }
+  if (req.method === 'GET' && pathname === '/healthz') { res.writeHead(200); res.end('ok'); return; }
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Not found');
 }).listen(PORT, () => console.log(`강의실 라이브: http://localhost:${PORT}`));
