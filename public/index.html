@@ -4,142 +4,186 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>강의실 라이브</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 레이아웃: 칠판(강사 자료)과 손든 질문, 두 칸. 좁은 화면에서는 탭으로 전환. */
+/* 레이아웃: 왼쪽은 강사가 띄운 프롬프트(짙은 슬랩), 오른쪽은 손든 질문 패널. 좁은 화면에서는 탭 전환. */
 :root {
-  --bg: #f1f4f1; --surface: #ffffff; --sunken: #e8ede9;
-  --ink: #15201b; --muted: #5d6b64; --line: #d5dcd7;
-  --accent: #1c6b51; --on-accent: #ffffff; --accent-soft: #dcefe6;
-  --chalk: #f6d860; --danger: #b3402f;
-  --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", "D2Coding", ui-monospace, Menlo, Consolas, monospace;
-  --r: 10px;
+  --bg: #f3f4f8; --panel: #ffffff; --ink: #141a2e; --muted: #68718a; --line: #e2e5ee;
+  --slab: #161c31; --slab-ink: #eef0fa; --slab-muted: #98a1c0; --slab-line: #2c3352; --slab-link: #a9b8ff;
+  --accent: #3355ff; --accent-soft: #e9edff;
+  --btn: #141a2e; --btn-ink: #ffffff;
+  --mark: #ffd84d; --mark-ink: #3a2f00;
+  --ok: #0f7f5b; --ok-soft: #dff4ea; --danger: #cf3a2b;
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f1713; --surface: #17221d; --sunken: #111b16;
-    --ink: #e5ece7; --muted: #92a299; --line: #293730;
-    --accent: #62c9a0; --on-accent: #0c1612; --accent-soft: #1d3329;
-    --chalk: #e3c452; --danger: #ef8a78;
+    --bg: #0b0e17; --panel: #121623; --ink: #eceef6; --muted: #8a92ab; --line: #222739;
+    --slab: #181e33; --slab-ink: #eef0fa; --slab-muted: #8f98b8; --slab-line: #2b3353; --slab-link: #a9b8ff;
+    --accent: #8298ff; --accent-soft: #1b2346;
+    --btn: #eceef6; --btn-ink: #0b0e17;
+    --mark: #f2c94c; --mark-ink: #2e2500;
+    --ok: #52d0a2; --ok-soft: #12302a; --danger: #ff8a78;
     color-scheme: dark;
   }
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
-body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--sans); }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--font); -webkit-font-smoothing: antialiased; letter-spacing: -0.005em; }
 [hidden] { display: none !important; }
-button, input, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
+button, input, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg.i { width: 1.05em; height: 1.05em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; font-weight: 500; white-space: nowrap; }
-.btn:hover { border-color: var(--muted); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn.small { padding: 3px 9px; font-size: 13px; }
-.btn.ghost { border-color: transparent; background: none; color: var(--muted); }
-.btn.ghost:hover { color: var(--ink); background: var(--sunken); }
-.btn.danger:hover { color: var(--danger); }
-input[type=text], textarea {
-  width: 100%; border: 1px solid var(--line); background: var(--surface);
-  border-radius: 8px; padding: 9px 11px; resize: vertical;
-}
-textarea { min-height: 44px; display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; font-weight: 600; font-size: 14px; white-space: nowrap; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+.btn:hover { box-shadow: inset 0 0 0 1px var(--muted); }
+.btn.primary { background: var(--btn); color: var(--btn-ink); box-shadow: none; }
+.btn.primary:hover { opacity: 0.88; }
+.btn.big { height: 46px; font-size: 15px; border-radius: 12px; }
+.tool { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.tool:hover { background: var(--line); color: var(--ink); }
+.tool.danger:hover, .tool[data-armed] { color: var(--danger); }
+.field { width: 100%; height: 46px; border: 0; border-radius: 12px; padding: 0 14px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+.field:focus { outline: 0; box-shadow: inset 0 0 0 2px var(--accent); }
 
 /* ── 시작 화면 ── */
-#home { min-height: 100%; display: grid; place-items: center; padding: 32px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left)); }
-.home-inner { width: 100%; max-width: 760px; display: grid; gap: 28px; }
-.home-inner h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.2; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
-.home-inner h1 mark { background: linear-gradient(transparent 62%, var(--chalk) 62%); color: inherit; }
-.home-inner > p { margin: -14px 0 0; color: var(--muted); max-width: 46ch; }
-.home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-.home-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: grid; gap: 12px; align-content: start; }
-.home-card h2 { font-size: 16px; margin: 0; }
-.home-card p { margin: 0; color: var(--muted); font-size: 14px; }
-#joinCode { font-family: var(--mono); letter-spacing: 0.2em; text-transform: uppercase; }
-.error { color: var(--danger); font-size: 14px; min-height: 1.4em; margin: 0; }
+#home { min-height: 100%; display: grid; align-items: center; padding: 48px max(20px, env(safe-area-inset-right)) 48px max(20px, env(safe-area-inset-left)); }
+.home-inner { width: 100%; max-width: 880px; margin: 0 auto; display: grid; gap: 40px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+.brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.home-inner h1 { font-size: clamp(32px, 6.4vw, 56px); line-height: 1.18; font-weight: 800; letter-spacing: -0.035em; margin: 0; text-wrap: balance; word-break: keep-all; }
+.home-inner .lede { margin: -22px 0 0; color: var(--muted); font-size: 17px; max-width: 34em; word-break: keep-all; }
+.home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.home-card { border-radius: 20px; padding: 26px; display: grid; gap: 14px; align-content: start; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+.home-card h2 { font-size: 19px; margin: 0; letter-spacing: -0.02em; }
+.home-card p { margin: -8px 0 4px; color: var(--muted); font-size: 14px; }
+.home-card.dark { background: var(--slab); color: var(--slab-ink); box-shadow: inset 0 0 0 1px var(--slab-line); }
+.home-card.dark p { color: var(--slab-muted); }
+.home-card.dark .field { background: rgb(255 255 255 / 0.07); box-shadow: inset 0 0 0 1px var(--slab-line); color: var(--slab-ink); }
+.home-card.dark .field::placeholder { color: var(--slab-muted); }
+.home-card.dark .field:focus { box-shadow: inset 0 0 0 2px var(--slab-link); }
+.home-card.dark .btn.primary { background: var(--mark); color: var(--mark-ink); }
+#joinCode { font-weight: 700; font-size: 20px; letter-spacing: 0.3em; text-transform: uppercase; text-align: center; }
+#joinCode::placeholder { font-weight: 500; color: var(--line); }
+.error { color: var(--danger); font-size: 13px; min-height: 1.5em; margin: -6px 0 -8px !important; }
+.home-card.dark .error { color: #ffb0a3; }
 
 /* ── 강의실 ── */
 #room { height: 100%; display: flex; flex-direction: column; }
-header.bar {
-  display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap;
-  padding: 10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
-  background: var(--surface); border-bottom: 1px solid var(--line);
-}
-.bar h1 { font-size: 17px; margin: 0; min-width: 0; overflow-wrap: anywhere; flex: 1 1 160px; }
-.meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
-.code { font-family: var(--mono); font-weight: 500; letter-spacing: 0.12em; color: var(--ink); background: var(--sunken); border-radius: 6px; padding: 2px 8px; }
-.live { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
-.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-.live.off i { background: var(--danger); }
-.actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.host-badge { font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: 2px 9px; }
+header.bar { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px max(20px, env(safe-area-inset-right)) 10px max(20px, env(safe-area-inset-left)); background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin: 0; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.host-badge { font-size: 12px; font-weight: 700; color: var(--mark-ink); background: var(--mark); border-radius: 6px; padding: 2px 8px; }
+.live { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.live.off i { background: var(--danger); box-shadow: none; }
+.codechip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px; background: var(--bg); font-weight: 700; letter-spacing: 0.14em; font-size: 15px; }
+.codechip small { font-weight: 500; font-size: 12px; letter-spacing: 0; color: var(--muted); }
 
-.tabs { display: none; border-bottom: 1px solid var(--line); background: var(--surface); }
-.tabs button { flex: 1; border: 0; background: none; padding: 10px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; }
-.tabs button[aria-selected=true] { color: var(--ink); border-bottom-color: var(--accent); }
-.tabs .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--chalk); margin-left: 6px; vertical-align: middle; box-shadow: 0 0 0 1px var(--muted); }
+.tabs { display: none; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.seg { display: flex; padding: 3px; border-radius: 10px; background: var(--bg); gap: 2px; }
+.seg button { flex: 1; height: 32px; padding: 0 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.seg button[aria-selected=true], .seg button[aria-pressed=true] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-left: 6px; vertical-align: 2px; }
 
-main.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+main.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(340px, 34vw, 460px); }
 .col { min-height: 0; min-width: 0; display: flex; flex-direction: column; }
-.col + .col { border-left: 1px solid var(--line); }
-.col-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 14px 20px 6px; }
-.col-head h2 { font-size: 13px; letter-spacing: 0.06em; color: var(--muted); margin: 0; font-weight: 600; }
-.col-head .count { font-variant-numeric: tabular-nums; }
-.list { flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
-.empty { color: var(--muted); text-align: center; margin: auto; padding: 32px 12px; max-width: 34ch; }
-.composer { border-top: 1px solid var(--line); background: var(--surface); padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); display: grid; gap: 8px; }
-.composer .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
-.composer .hint { color: var(--muted); font-size: 12px; }
-#postText { font-family: var(--mono); font-size: 14px; min-height: 72px; }
-#qName { max-width: 150px; padding: 6px 10px; font-size: 14px; }
+#colQuestions { background: var(--panel); border-left: 1px solid var(--line); }
+.col-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 18px 24px 8px; min-height: 58px; }
+.col-head h2 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.col-head h2 span { color: var(--muted); font-weight: 500; margin-left: 6px; font-variant-numeric: tabular-nums; }
+.col-head .seg button { height: 26px; font-size: 12px; padding: 0 10px; }
+.list { flex: 1; overflow-y: auto; padding: 8px 24px 24px; }
+.wrap { width: 100%; max-width: 780px; margin: 0 auto; }
+#postList .wrap { display: flex; flex-direction: column; gap: 14px; min-height: 100%; }
+#colPosts .col-head { max-width: 828px; width: 100%; margin: 0 auto; }
+.empty { color: var(--muted); text-align: center; margin: auto; padding: 40px 12px; max-width: 30ch; word-break: keep-all; display: grid; justify-items: center; gap: 10px; }
+.empty svg { width: 28px; height: 28px; opacity: 0.6; }
 
-/* 강사 자료 카드: 칠판에 적은 내용처럼 고정폭 글꼴 */
-.post { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
-.post.pinned { border-color: var(--chalk); box-shadow: inset 4px 0 0 var(--chalk); }
-.post-top { display: flex; align-items: center; gap: 6px; padding: 6px 8px 0 14px; color: var(--muted); font-size: 12px; }
-.post-top time { margin-right: auto; font-variant-numeric: tabular-nums; }
-.post pre { margin: 0; padding: 6px 14px 14px; font: 14px/1.65 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
-.post pre a, .q-reply a { color: var(--accent); }
+/* 강사 자료: 짙은 슬랩 */
+.post { background: var(--slab); color: var(--slab-ink); border-radius: 16px; box-shadow: inset 0 0 0 1px var(--slab-line); }
+.post-bar { display: flex; align-items: center; gap: 4px; padding: 10px 10px 0 18px; font-size: 12px; color: var(--slab-muted); }
+.post-bar time { font-variant-numeric: tabular-nums; margin-right: auto; display: inline-flex; align-items: center; gap: 8px; }
+.pin-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--mark); color: var(--mark-ink); font-weight: 700; border-radius: 6px; padding: 1px 7px 1px 5px; }
+.post .tool { color: var(--slab-muted); }
+.post .tool:hover { background: rgb(255 255 255 / 0.08); color: var(--slab-ink); }
+.post .tool.danger:hover, .post .tool[data-armed] { color: #ff9c8c; }
+.copy { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-radius: 8px; font-size: 13px; font-weight: 600; background: rgb(255 255 255 / 0.1); color: var(--slab-ink); margin-left: 4px; }
+.copy:hover { background: rgb(255 255 255 / 0.18); }
+.copy.done { background: var(--ok); color: #fff; }
+.post-body { padding: 8px 18px 18px; font-size: 16px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 2; }
+.post-body a { color: var(--slab-link); text-underline-offset: 3px; }
+@keyframes arrive { from { box-shadow: inset 0 0 0 2px var(--mark), 0 0 0 6px rgb(255 216 77 / 0.25); } }
+.post.fresh { animation: arrive 1.6s ease-out; }
+@keyframes arriveQ { from { background: var(--accent-soft); } }
+.q.fresh { animation: arriveQ 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { .post.fresh, .q.fresh { animation: none; } }
 
-.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; }
-.q.answered { background: transparent; }
-.vote { grid-row: span 3; align-self: start; display: grid; justify-items: center; gap: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 9px; min-width: 44px; line-height: 1.3; }
-.vote b { font-variant-numeric: tabular-nums; font-size: 15px; }
-.vote span { font-size: 11px; color: var(--muted); }
-.vote[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
-.vote[aria-pressed=true] span { color: var(--accent); }
-.q-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.q-meta { color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.tag { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: 1px 8px; }
-.q-reply { margin: 6px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.q-reply b { display: block; font-size: 12px; color: var(--accent); }
-.q-tools { display: flex; gap: 2px; flex-wrap: wrap; margin-left: -6px; }
+/* 질문: 선으로만 나눈 목록 */
+#qList { padding-top: 0; display: flex; flex-direction: column; }
+.q { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+.q:first-child { border-top: 0; }
+.hand { align-self: start; display: grid; justify-items: center; gap: 1px; width: 46px; padding: 8px 0 6px; border-radius: 12px; color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); font-size: 15px; }
+.hand b { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.hand:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--muted); }
+.hand[aria-pressed=true] { background: var(--accent); color: #fff; box-shadow: none; }
+@media (prefers-color-scheme: dark) { .hand[aria-pressed=true] { color: #0b0e17; } }
+.q-text { margin: 0; font-size: 15px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 500; }
+.q.answered .q-text { color: var(--muted); font-weight: 400; }
+.q-meta { margin-top: 4px; color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+.tag { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; color: var(--ok); }
+.q-reply { margin: 10px 0 0; padding: 10px 14px; border-radius: 4px 14px 14px 14px; background: var(--bg); font-size: 14px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.q-reply b { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+.q-reply a { color: var(--accent); }
+.q-tools { display: flex; gap: 2px; flex-wrap: wrap; margin: 8px 0 -4px -8px; }
 
-dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 22px; width: min(92vw, 460px); }
-dialog::backdrop { background: rgb(0 0 0 / 0.55); }
-dialog h3 { margin: 0 0 10px; font-size: 17px; }
-dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-#qrDialog { width: min(94vw, 560px); text-align: center; }
-#qrBox { background: #fff; border-radius: 10px; padding: 10px; display: inline-block; max-width: 100%; }
-#qrBox svg { display: block; width: min(70vw, 380px); height: auto; }
-#qrUrl { font-family: var(--mono); overflow-wrap: anywhere; margin: 12px 0 0; }
-#qrCode { font: 600 34px/1.2 var(--mono); letter-spacing: 0.18em; margin: 6px 0 0; }
-#replyQuote { color: var(--muted); margin: 0 0 10px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 6.5em; overflow: auto; }
+/* 입력창 */
+.composer { padding: 10px 24px calc(16px + env(safe-area-inset-bottom)); }
+.box { border-radius: 16px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line), 0 2px 10px rgb(20 26 46 / 0.05); }
+#colQuestions .box { background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+.box:focus-within { box-shadow: inset 0 0 0 2px var(--accent); }
+.box textarea { display: block; width: 100%; border: 0; background: none; resize: none; padding: 14px 16px 4px; min-height: 52px; max-height: 40vh; line-height: 1.55; }
+.box textarea:focus { outline: 0; }
+#postText { min-height: 84px; font-size: 16px; }
+.box-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 8px 16px; }
+.box-foot .hint { color: var(--muted); font-size: 12px; }
+#qName { border: 0; background: none; min-width: 0; flex: 1; font-size: 13px; padding: 4px 0; }
+#qName:focus { outline: 0; }
+.send { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; background: var(--btn); color: var(--btn-ink); font-weight: 600; font-size: 14px; white-space: nowrap; }
+.send:hover { opacity: 0.88; }
 
-#toast { position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 99px; font-size: 14px; z-index: 20; max-width: 90vw; }
+dialog { border: 0; border-radius: 22px; background: var(--panel); color: var(--ink); padding: 28px; width: min(92vw, 460px); box-shadow: 0 24px 80px rgb(0 0 0 / 0.35); }
+dialog::backdrop { background: rgb(8 10 20 / 0.6); backdrop-filter: blur(3px); }
+dialog h3 { margin: 0 0 12px; font-size: 19px; letter-spacing: -0.02em; }
+dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+#inviteDialog { width: min(94vw, 520px); text-align: center; }
+#inviteDialog h3 { font-size: 22px; }
+#qrBox { background: #fff; border-radius: 16px; padding: 12px; display: inline-block; max-width: 100%; box-shadow: inset 0 0 0 1px var(--line); }
+#qrBox svg { display: block; width: min(64vw, 320px); height: auto; }
+#inviteCode { font-size: 44px; font-weight: 800; letter-spacing: 0.2em; margin: 14px 0 0; line-height: 1.2; padding-left: 0.2em; }
+#inviteUrl { color: var(--muted); overflow-wrap: anywhere; margin: 2px 0 0; font-size: 14px; }
+#inviteDialog .row { justify-content: center; }
+#replyQuote { color: var(--muted); margin: 0 0 12px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 6.5em; overflow: auto; }
+#replyDialog .box { background: var(--bg); }
+#replyDialog textarea { padding-bottom: 14px; min-height: 110px; }
 
-@media (max-width: 760px) {
-  .tabs { display: flex; }
+#toast { position: fixed; left: 50%; top: calc(72px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--btn); color: var(--btn-ink); padding: 9px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 20; max-width: 90vw; box-shadow: 0 8px 30px rgb(0 0 0 / 0.25); }
+
+@media (max-width: 820px) {
+  .tabs { display: block; }
   main.cols { grid-template-columns: minmax(0, 1fr); }
-  .col + .col { border-left: 0; }
+  #colQuestions { border-left: 0; }
   main.cols[data-tab=posts] #colQuestions, main.cols[data-tab=questions] #colPosts { display: none; }
-  .col-head { padding: 10px 16px 2px; }
-  .list { padding: 8px 16px 16px; }
-  .composer { padding-left: 16px; padding-right: 16px; }
+  header.bar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); gap: 8px; }
+  .codechip small, .btn-label, .live-label { display: none; }
+  .btn.icon-only-sm { width: 36px; padding: 0; }
+  .col-head { padding: 12px 16px 6px; min-height: 0; }
+  #colPosts .col-head { display: none; }
+  .list { padding: 12px 16px 16px; }
+  #qList { padding-top: 0; }
+  .composer { padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); }
+  .post-body { font-size: 15px; }
 }
 </style>
 </head>
@@ -148,21 +192,22 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
 <!-- 시작 화면 -->
 <section id="home" hidden>
   <div class="home-inner">
-    <h1>강의 중에 <mark>프롬프트는 바로 공유</mark>하고, 질문은 바로 받으세요.</h1>
-    <p>강사가 올린 자료는 모든 수강생 화면에 즉시 나타납니다. 수강생은 가입 없이 링크나 QR 코드로 들어옵니다.</p>
+    <span class="brand"><i></i>강의실 라이브</span>
+    <h1>프롬프트는 화면에 띄우고, 질문은 손을 들어 받으세요.</h1>
+    <p class="lede">강사가 올린 프롬프트는 모든 수강생 화면에 바로 나타납니다. 수강생은 가입 없이 QR 코드로 들어와 복사하고 질문합니다.</p>
     <div class="home-cards">
-      <form class="home-card" id="createForm">
+      <form class="home-card dark" id="createForm">
         <h2>강의실 만들기</h2>
-        <p>강사용입니다. 만든 브라우저에서 강사 권한을 갖습니다.</p>
-        <input type="text" id="createTitle" maxlength="60" placeholder="강의 제목 (예: 프롬프트 엔지니어링 1주차)" autocomplete="off">
-        <button class="btn primary" type="submit">강의실 만들기</button>
+        <p>강사용입니다. 만든 브라우저가 강사 권한을 갖습니다.</p>
+        <input class="field" type="text" id="createTitle" maxlength="60" placeholder="강의 제목" autocomplete="off">
+        <button class="btn primary big" type="submit">강의실 만들기</button>
         <p class="error" id="createError" role="alert"></p>
       </form>
       <form class="home-card" id="joinForm">
         <h2>강의실 입장</h2>
         <p>강사가 알려준 6자리 코드를 입력하세요.</p>
-        <input type="text" id="joinCode" maxlength="6" placeholder="ABC234" autocomplete="off" autocapitalize="characters">
-        <button class="btn" type="submit">입장</button>
+        <input class="field" type="text" id="joinCode" maxlength="6" placeholder="ABC234" autocomplete="off" autocapitalize="characters" aria-label="강의실 코드">
+        <button class="btn primary big" type="submit">입장</button>
         <p class="error" id="joinError" role="alert"></p>
       </form>
     </div>
@@ -173,65 +218,72 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
 <section id="room" hidden>
   <header class="bar">
     <h1 id="roomTitle"></h1>
-    <div class="meta">
-      <span class="host-badge" id="hostBadge" hidden>강사</span>
-      <span class="code" id="roomCode" title="강의실 코드"></span>
-      <span class="live" id="live"><i></i><span id="online">연결 중</span></span>
-    </div>
-    <div class="actions">
-      <button class="btn" id="btnQr">QR 띄우기</button>
-      <button class="btn" id="btnInvite">초대 링크 복사</button>
-      <button class="btn" id="btnHostLink" hidden title="다른 기기에서 강사로 접속할 때 쓰는 링크">강사용 링크 복사</button>
-    </div>
+    <span class="host-badge" id="hostBadge" hidden>강사</span>
+    <span class="live" id="live"><i></i><span id="online">연결 중</span></span>
+    <span class="codechip" title="강의실 코드"><small>입장 코드</small><span id="roomCode"></span></span>
+    <button class="btn primary icon-only-sm" id="btnInvite" aria-label="초대"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21v.01M21 21v.01M17.5 17.5H21"/></svg><span class="btn-label">초대</span></button>
   </header>
 
-  <nav class="tabs" role="tablist">
-    <button role="tab" id="tabPosts" aria-selected="true">강사 자료<span class="dot" hidden></span></button>
-    <button role="tab" id="tabQuestions" aria-selected="false">질문<span class="dot" hidden></span></button>
+  <nav class="tabs">
+    <div class="seg" role="tablist">
+      <button role="tab" id="tabPosts" aria-selected="true">강사 자료<span class="dot" hidden></span></button>
+      <button role="tab" id="tabQuestions" aria-selected="false">질문<span class="dot" hidden></span></button>
+    </div>
   </nav>
 
   <main class="cols" id="cols" data-tab="posts">
     <section class="col" id="colPosts">
-      <div class="col-head"><h2>강사 자료 <span class="count" id="postCount"></span></h2></div>
-      <div class="list" id="postList"></div>
+      <div class="col-head"><h2>강사 자료<span id="postCount"></span></h2></div>
+      <div class="list" id="postList"><div class="wrap" id="postWrap"></div></div>
       <form class="composer" id="postForm" hidden>
-        <textarea id="postText" maxlength="8000" placeholder="프롬프트, 코드, 링크를 붙여 넣으세요"></textarea>
-        <div class="row">
-          <span class="hint">Ctrl(⌘) + Enter로 공유</span>
-          <button class="btn primary" type="submit">공유</button>
+        <div class="wrap box">
+          <textarea id="postText" maxlength="8000" placeholder="프롬프트, 코드, 링크를 붙여 넣으세요" aria-label="공유할 내용"></textarea>
+          <div class="box-foot">
+            <span class="hint">Ctrl(⌘) + Enter</span>
+            <button class="send" type="submit">공유<svg class="i" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+          </div>
         </div>
       </form>
     </section>
 
     <section class="col" id="colQuestions">
       <div class="col-head">
-        <h2>질문 <span class="count" id="qCount"></span></h2>
-        <button class="btn small ghost" id="btnSort">공감순</button>
+        <h2>질문<span id="qCount"></span></h2>
+        <div class="seg" id="sortSeg">
+          <button type="button" data-sort="votes" aria-pressed="true">공감순</button>
+          <button type="button" data-sort="recent" aria-pressed="false">최신순</button>
+        </div>
       </div>
       <div class="list" id="qList"></div>
       <form class="composer" id="qForm">
-        <textarea id="qText" maxlength="1000" rows="2" placeholder="질문을 입력하세요"></textarea>
-        <div class="row">
-          <input type="text" id="qName" maxlength="30" placeholder="이름 (비우면 익명)" autocomplete="nickname">
-          <button class="btn primary" type="submit">질문하기</button>
+        <div class="box">
+          <textarea id="qText" maxlength="1000" rows="1" placeholder="궁금한 점을 물어보세요" aria-label="질문"></textarea>
+          <div class="box-foot">
+            <input type="text" id="qName" maxlength="30" placeholder="이름 (비우면 익명)" autocomplete="nickname" aria-label="이름">
+            <button class="send" type="submit">질문하기</button>
+          </div>
         </div>
       </form>
     </section>
   </main>
 </section>
 
-<dialog id="qrDialog">
+<dialog id="inviteDialog">
   <h3>카메라로 찍으면 바로 입장합니다</h3>
   <div id="qrBox"></div>
-  <p id="qrUrl"></p>
-  <p id="qrCode"></p>
-  <div class="row"><button class="btn" data-close>닫기</button></div>
+  <p id="inviteCode"></p>
+  <p id="inviteUrl"></p>
+  <div class="row">
+    <button class="btn primary" id="btnCopyInvite">초대 링크 복사</button>
+    <button class="btn" id="btnHostLink" hidden title="다른 기기에서 강사로 접속할 때 쓰는 링크">강사용 링크 복사</button>
+    <button class="btn" data-close>닫기</button>
+  </div>
 </dialog>
 
 <dialog id="replyDialog">
   <h3>답변 달기</h3>
   <p id="replyQuote"></p>
-  <textarea id="replyText" maxlength="2000" rows="4" placeholder="답변 (비워 두면 '답변 완료' 표시만 합니다)"></textarea>
+  <div class="box"><textarea id="replyText" maxlength="2000" placeholder="답변 (비워 두면 '답변 완료' 표시만 합니다)" aria-label="답변"></textarea></div>
   <div class="row">
     <button class="btn" data-close>취소</button>
     <button class="btn primary" id="replySave">답변 완료로 표시</button>
@@ -253,6 +305,19 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
     if (cls) n.className = cls;
     if (txt != null) n.textContent = txt;
     return n;
+  };
+  // 고정된 문자열만 넣는 아이콘
+  const ICONS = {
+    copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    pin: '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
+    hand: '<path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
+    board: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/>',
+  };
+  const icon = (name) => {
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'i'); s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = ICONS[name]; return s;
   };
 
   let toastTimer;
@@ -277,7 +342,7 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
       const ta = el('textarea'); ta.value = textToCopy; document.body.append(ta); ta.select();
       try { document.execCommand('copy'); } finally { ta.remove(); }
     }
-    toast(okMsg);
+    if (okMsg) toast(okMsg);
   }
 
   // 본문 속 URL을 링크로 (textContent만 사용)
@@ -330,6 +395,8 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
   let sortByVotes = true;
   let state = null;
   let seen = { posts: 0, questions: 0 };
+  let known = null;            // 이미 본 글 id (새 글 강조용)
+  let copiedId = null;
 
   $('room').hidden = false;
   $('roomCode').textContent = code;
@@ -345,82 +412,95 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
   $('tabPosts').onclick = () => setTab('posts');
   $('tabQuestions').onclick = () => setTab('questions');
 
-  function renderPosts() {
-    const list = $('postList'); list.replaceChildren();
+  function emptyState(iconName, msg) {
+    const p = el('p', 'empty'); p.append(icon(iconName), el('span', null, msg)); return p;
+  }
+
+  function renderPosts(fresh) {
+    const list = $('postWrap'); list.replaceChildren();
     const posts = [...state.posts].sort((a, b) => (b.pinned - a.pinned) || (b.at - a.at));
     $('postCount').textContent = posts.length || '';
     if (!posts.length) {
-      list.append(el('p', 'empty', isHost ? '아래 입력창에 프롬프트를 붙여 넣고 공유하면 수강생 화면에 바로 나타납니다.' : '강사가 프롬프트나 자료를 공유하면 여기에 바로 나타납니다.'));
+      list.append(emptyState('board', isHost ? '아래에 프롬프트를 붙여 넣고 공유하면 수강생 화면에 바로 나타납니다.' : '강사가 프롬프트나 자료를 공유하면 여기에 바로 나타납니다.'));
       return;
     }
     for (const p of posts) {
-      const card = el('article', 'post' + (p.pinned ? ' pinned' : ''));
-      const top = el('div', 'post-top');
-      const t = el('time', null, (p.pinned ? '고정 · ' : '') + hhmm(p.at));
-      const btnCopy = el('button', 'btn small', '복사');
-      btnCopy.onclick = () => copy(p.text, '복사했습니다');
-      top.append(t, btnCopy);
+      const card = el('article', 'post' + (fresh.has(p.id) ? ' fresh' : ''));
+      const bar = el('div', 'post-bar');
+      const t = el('time');
+      if (p.pinned) { const chip = el('span', 'pin-chip'); chip.append(icon('pin'), '고정'); t.append(chip); }
+      t.append(hhmm(p.at));
+      bar.append(t);
       if (isHost) {
-        const pin = el('button', 'btn small ghost', p.pinned ? '고정 해제' : '고정');
+        const pin = el('button', 'tool', p.pinned ? '고정 해제' : '고정');
         pin.onclick = () => act('POST', `${base}/posts/${p.id}/pin`, { hostKey });
-        const del = el('button', 'btn small ghost danger', '삭제');
+        const del = el('button', 'tool danger', '삭제');
         del.onclick = () => confirmTwice(del, () => act('DELETE', `${base}/posts/${p.id}`, { hostKey }));
-        top.append(pin, del);
+        bar.append(pin, del);
       }
-      const pre = el('pre'); fillLinked(pre, p.text);
-      card.append(top, pre); list.append(card);
+      const done = copiedId === p.id;
+      const btnCopy = el('button', 'copy' + (done ? ' done' : ''));
+      btnCopy.append(icon(done ? 'check' : 'copy'), done ? '복사됨' : '복사');
+      btnCopy.onclick = async () => {
+        await copy(p.text); copiedId = p.id; renderPosts(new Set());
+        setTimeout(() => { if (copiedId === p.id) { copiedId = null; renderPosts(new Set()); } }, 1800);
+      };
+      bar.append(btnCopy);
+      const body = el('div', 'post-body'); fillLinked(body, p.text);
+      card.append(bar, body); list.append(card);
     }
   }
 
-  function renderQuestions() {
+  function renderQuestions(fresh) {
     const list = $('qList'); list.replaceChildren();
     const open = state.questions.filter((q) => !q.answered).length;
-    $('qCount').textContent = state.questions.length ? `${open}개 대기 / 전체 ${state.questions.length}` : '';
+    $('qCount').textContent = state.questions.length ? (open ? `${open}개 대기` : '모두 답변함') : '';
     if (!state.questions.length) {
-      list.append(el('p', 'empty', '아직 질문이 없습니다. 궁금한 점을 아래에 남기면 강사에게 바로 전달됩니다.'));
+      list.append(emptyState('hand', isHost ? '아직 질문이 없습니다. 수강생이 질문을 남기면 여기에 나타납니다.' : '아직 질문이 없습니다. 궁금한 점을 아래에 남겨 보세요.'));
       return;
     }
     const qs = [...state.questions].sort((a, b) =>
       (a.answered - b.answered) || (sortByVotes ? b.votes - a.votes : 0) || (b.at - a.at));
     for (const q of qs) {
-      const card = el('article', 'q' + (q.answered ? ' answered' : ''));
-      const vote = el('button', 'vote');
+      const card = el('article', 'q' + (q.answered ? ' answered' : '') + (fresh.has(q.id) ? ' fresh' : ''));
+      const vote = el('button', 'hand');
       vote.setAttribute('aria-pressed', voted.has(q.id));
       vote.setAttribute('aria-label', '나도 궁금해요, 현재 ' + q.votes + '명');
-      vote.append(el('b', null, q.votes), el('span', null, '궁금'));
+      vote.title = '나도 궁금해요';
+      vote.append(icon('hand'), el('b', null, q.votes));
       vote.onclick = async () => {
         try {
           const r = await call('POST', `${base}/questions/${q.id}/vote`, { clientId });
           r.voted ? voted.add(q.id) : voted.delete(q.id);
           store.set('voted:' + code, JSON.stringify([...voted]));
-          renderQuestions();
+          renderQuestions(new Set());
         } catch (err) { toast(err.message); }
       };
-      const body = el('p', 'q-text', q.text);
+      const main = el('div');
+      main.append(el('p', 'q-text', q.text));
       const meta = el('div', 'q-meta');
       meta.append(el('span', null, q.name), el('span', null, hhmm(q.at)));
-      if (q.answered) meta.append(el('span', 'tag', '답변 완료'));
-      card.append(vote, body, meta);
-      const extra = el('div');
+      if (q.answered) { const tag = el('span', 'tag'); tag.append(icon('check'), '답변 완료'); meta.append(tag); }
+      main.append(meta);
       if (q.reply) {
-        const reply = el('p', 'q-reply'); reply.append(el('b', null, '강사 답변'));
-        fillLinked(reply, q.reply); extra.append(reply);
+        const reply = el('p', 'q-reply'); reply.append(el('b', null, '강사'));
+        fillLinked(reply, q.reply); main.append(reply);
       }
       if (isHost) {
         const tools = el('div', 'q-tools');
-        const ans = el('button', 'btn small ghost', q.answered ? '답변 수정' : '답변');
+        const ans = el('button', 'tool', q.answered ? '답변 수정' : '답변');
         ans.onclick = () => openReply(q);
         tools.append(ans);
         if (q.answered) {
-          const undo = el('button', 'btn small ghost', '대기로 되돌리기');
+          const undo = el('button', 'tool', '대기로 되돌리기');
           undo.onclick = () => act('POST', `${base}/questions/${q.id}/answer`, { hostKey, answered: false });
           tools.append(undo);
         }
-        const del = el('button', 'btn small ghost danger', '삭제');
+        const del = el('button', 'tool danger', '삭제');
         del.onclick = () => confirmTwice(del, () => act('DELETE', `${base}/questions/${q.id}`, { hostKey }));
-        tools.append(del); extra.append(tools);
+        tools.append(del); main.append(tools);
       }
-      if (extra.childNodes.length) card.append(extra);
+      card.append(vote, main);
       list.append(card);
     }
   }
@@ -428,7 +508,7 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
   // 삭제는 같은 버튼을 한 번 더 눌러 확인
   function confirmTwice(btn, fn) {
     if (btn.dataset.armed) return fn();
-    btn.dataset.armed = '1'; const old = btn.textContent; btn.textContent = '정말 삭제?';
+    btn.dataset.armed = '1'; const old = btn.textContent; btn.textContent = '한 번 더 눌러 삭제';
     setTimeout(() => { delete btn.dataset.armed; btn.textContent = old; }, 2500);
   }
   async function act(method, url, body) {
@@ -437,9 +517,12 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
 
   function render() {
     $('roomTitle').textContent = state.title;
-    document.title = state.title + ' · 강의실 라이브';
-    $('online').textContent = state.online + '명 접속 중';
-    renderPosts(); renderQuestions();
+    document.title = state.title + ' | 강의실 라이브';
+    $('online').replaceChildren(String(state.online), el('span', 'live-label', '명 접속 중'));
+    const ids = [...state.posts, ...state.questions].map((x) => x.id);
+    const fresh = new Set(known ? ids.filter((i) => !known.has(i)) : []);
+    known = new Set(ids);
+    renderPosts(fresh); renderQuestions(fresh);
     // 다른 탭에 새 글이 오면 점 표시 (좁은 화면)
     const tab = $('cols').dataset.tab;
     if (state.posts.length > seen.posts && tab !== 'posts') $('tabPosts').querySelector('.dot').hidden = false;
@@ -469,11 +552,15 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
     $('createForm').addEventListener('submit', (e) => { e.preventDefault(); location.href = '/'; });
   });
 
+  // 입력창 높이를 내용에 맞춤
+  const autosize = (ta) => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+  for (const id of ['postText', 'qText']) $(id).addEventListener('input', (e) => autosize(e.target));
+
   // 강사: 자료 공유
   $('postForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const t = $('postText').value.trim(); if (!t) return;
-    try { await call('POST', base + '/posts', { hostKey, text: t }); $('postText').value = ''; toast('공유했습니다'); }
+    try { await call('POST', base + '/posts', { hostKey, text: t }); $('postText').value = ''; autosize($('postText')); }
     catch (err) { toast(err.message); }
   });
   $('postText').addEventListener('keydown', (e) => {
@@ -485,17 +572,20 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
     e.preventDefault();
     const t = $('qText').value.trim(); if (!t) return;
     const name = $('qName').value.trim(); store.set('name', name);
-    try { await call('POST', base + '/questions', { clientId, name, text: t }); $('qText').value = ''; toast('질문을 보냈습니다'); }
+    try { await call('POST', base + '/questions', { clientId, name, text: t }); $('qText').value = ''; autosize($('qText')); }
     catch (err) { toast(err.message); }
   });
   $('qText').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('qForm').requestSubmit(); }
   });
 
-  $('btnSort').onclick = () => {
-    sortByVotes = !sortByVotes; $('btnSort').textContent = sortByVotes ? '공감순' : '최신순';
-    if (state) renderQuestions();
-  };
+  $('sortSeg').querySelectorAll('button').forEach((b) => {
+    b.onclick = () => {
+      sortByVotes = b.dataset.sort === 'votes';
+      $('sortSeg').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+      if (state) renderQuestions(new Set());
+    };
+  });
 
   // 답변
   let replyTarget = null;
@@ -509,16 +599,16 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12
   };
 
   // 초대
-  $('btnInvite').onclick = () => copy(inviteUrl, '초대 링크를 복사했습니다');
-  $('btnHostLink').onclick = () => copy(inviteUrl + '#host=' + hostKey, '강사용 링크를 복사했습니다. 수강생에게는 공유하지 마세요.');
-  $('btnQr').onclick = () => {
-    $('qrUrl').textContent = inviteUrl; $('qrCode').textContent = code;
+  $('btnInvite').onclick = () => {
+    $('inviteUrl').textContent = inviteUrl.replace(/^https?:\/\//, ''); $('inviteCode').textContent = code;
     if (typeof qrcode === 'function') {
       const qr = qrcode(0, 'M'); qr.addData(inviteUrl); qr.make();
-      $('qrBox').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
+      $('qrBox').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 1, scalable: true });
     } else { $('qrBox').hidden = true; }
-    $('qrDialog').showModal();
+    $('inviteDialog').showModal();
   };
+  $('btnCopyInvite').onclick = () => copy(inviteUrl, '초대 링크를 복사했습니다');
+  $('btnHostLink').onclick = () => copy(inviteUrl + '#host=' + hostKey, '강사용 링크를 복사했습니다. 수강생에게는 공유하지 마세요.');
   document.querySelectorAll('[data-close]').forEach((b) => { b.onclick = () => b.closest('dialog').close(); });
 })();
 </script>
