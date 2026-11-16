@@ -185,10 +185,16 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
 
 #toast { position: fixed; left: 50%; top: calc(72px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--btn); color: var(--btn-ink); padding: 9px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 20; max-width: 90vw; box-shadow: 0 8px 30px rgb(0 0 0 / 0.25); }
 
+#btnMenu, .side-scrim { display: none; }
 @media (min-width: 821px) { header.bar .codechip, header.bar #btnInvite { display: none; } }
 @media (max-width: 820px) {
   #room { grid-template-columns: minmax(0, 1fr); }
-  .side { display: none; }
+  /* 휴대폰: 사이드바는 메뉴 버튼으로 여는 서랍 */
+  #btnMenu { display: inline-flex; width: 36px; padding: 0; margin-left: -6px; box-shadow: none; background: none; font-size: 20px; }
+  .side { position: fixed; inset: 0 auto 0 0; z-index: 30; width: min(280px, 82vw); padding-top: calc(18px + env(safe-area-inset-top)); transform: translateX(-100%); visibility: hidden; transition: transform 0.22s ease, visibility 0s 0.22s; box-shadow: 0 0 40px rgb(0 0 0 / 0.25); }
+  #room.menu-open .side { transform: none; visibility: visible; transition: transform 0.22s ease; }
+  #room.menu-open .side-scrim { display: block; position: fixed; inset: 0; z-index: 29; background: rgb(8 10 20 / 0.5); }
+  @media (prefers-reduced-motion: reduce) { .side, #room.menu-open .side { transition: none; } }
   .tabs { display: block; }
   main.cols { grid-template-columns: minmax(0, 1fr); }
   #colQuestions { border-left: 0; }
@@ -234,7 +240,7 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
 
 <!-- 강의실 -->
 <section id="room" hidden>
-  <aside class="side">
+  <aside class="side" id="sideMenu">
     <a class="brand" href="/"><i></i>강의실 라이브</a>
     <nav class="side-nav" aria-label="메뉴">
       <span class="side-label">메뉴</span>
@@ -247,8 +253,10 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
       <button class="btn primary" data-invite><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21v.01M21 21v.01M17.5 17.5H21"/></svg>초대</button>
     </div>
   </aside>
+  <div class="side-scrim" id="sideScrim"></div>
   <div class="stage">
   <header class="bar">
+    <button class="btn" id="btnMenu" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sideMenu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <h1 id="roomTitle"></h1>
     <span class="host-badge" id="hostBadge" hidden>강사</span>
     <span class="live" id="live"><i></i><span id="online">연결 중</span></span>
@@ -643,7 +651,18 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     } else { $('qrBox').hidden = true; }
     $('inviteDialog').showModal();
   };
-  document.querySelectorAll('[data-invite]').forEach((b) => { b.onclick = openInvite; });
+  document.querySelectorAll('[data-invite]').forEach((b) => { b.onclick = () => { setMenu(false); openInvite(); }; });
+
+  // 휴대폰 메뉴 서랍
+  function setMenu(open) {
+    $('room').classList.toggle('menu-open', open);
+    $('btnMenu').setAttribute('aria-expanded', open);
+    $('btnMenu').setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+  }
+  $('btnMenu').onclick = () => setMenu(!$('room').classList.contains('menu-open'));
+  $('sideScrim').onclick = () => setMenu(false);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+  matchMedia('(min-width: 821px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
   $('btnCopyInvite').onclick = () => copy(inviteUrl, '초대 링크를 복사했습니다');
   $('btnHostLink').onclick = () => copy(inviteUrl + '#host=' + hostKey, '강사용 링크를 복사했습니다. 수강생에게는 공유하지 마세요.');
   document.querySelectorAll('[data-close]').forEach((b) => { b.onclick = () => b.closest('dialog').close(); });
