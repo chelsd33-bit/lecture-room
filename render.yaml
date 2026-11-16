@@ -1,0 +1,8 @@
+# Render 배포 설정 (Blueprint)
+services:
+  - type: web
+    name: lecture-room
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
