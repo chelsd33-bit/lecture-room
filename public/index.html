@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>강의실 라이브</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 레이아웃: 칠판(강사 자료)과 손든 질문, 두 칸. 좁은 화면에서는 탭으로 전환. */
+:root {
+  --bg: #f1f4f1; --surface: #ffffff; --sunken: #e8ede9;
+  --ink: #15201b; --muted: #5d6b64; --line: #d5dcd7;
+  --accent: #1c6b51; --on-accent: #ffffff; --accent-soft: #dcefe6;
+  --chalk: #f6d860; --danger: #b3402f;
+  --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", "D2Coding", ui-monospace, Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1713; --surface: #17221d; --sunken: #111b16;
+    --ink: #e5ece7; --muted: #92a299; --line: #293730;
+    --accent: #62c9a0; --on-accent: #0c1612; --accent-soft: #1d3329;
+    --chalk: #e3c452; --danger: #ef8a78;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--sans); }
+[hidden] { display: none !important; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; font-weight: 500; white-space: nowrap; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.small { padding: 3px 9px; font-size: 13px; }
+.btn.ghost { border-color: transparent; background: none; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); background: var(--sunken); }
+.btn.danger:hover { color: var(--danger); }
+input[type=text], textarea {
+  width: 100%; border: 1px solid var(--line); background: var(--surface);
+  border-radius: 8px; padding: 9px 11px; resize: vertical;
+}
+textarea { min-height: 44px; display: block; }
+
+/* ── 시작 화면 ── */
+#home { min-height: 100%; display: grid; place-items: center; padding: 32px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left)); }
+.home-inner { width: 100%; max-width: 760px; display: grid; gap: 28px; }
+.home-inner h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.2; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.home-inner h1 mark { background: linear-gradient(transparent 62%, var(--chalk) 62%); color: inherit; }
+.home-inner > p { margin: -14px 0 0; color: var(--muted); max-width: 46ch; }
+.home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.home-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: grid; gap: 12px; align-content: start; }
+.home-card h2 { font-size: 16px; margin: 0; }
+.home-card p { margin: 0; color: var(--muted); font-size: 14px; }
+#joinCode { font-family: var(--mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.error { color: var(--danger); font-size: 14px; min-height: 1.4em; margin: 0; }
+
+/* ── 강의실 ── */
+#room { height: 100%; display: flex; flex-direction: column; }
+header.bar {
+  display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap;
+  padding: 10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.bar h1 { font-size: 17px; margin: 0; min-width: 0; overflow-wrap: anywhere; flex: 1 1 160px; }
+.meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.code { font-family: var(--mono); font-weight: 500; letter-spacing: 0.12em; color: var(--ink); background: var(--sunken); border-radius: 6px; padding: 2px 8px; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.live.off i { background: var(--danger); }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.host-badge { font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: 2px 9px; }
+
+.tabs { display: none; border-bottom: 1px solid var(--line); background: var(--surface); }
+.tabs button { flex: 1; border: 0; background: none; padding: 10px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; }
+.tabs button[aria-selected=true] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--chalk); margin-left: 6px; vertical-align: middle; box-shadow: 0 0 0 1px var(--muted); }
+
+main.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+.col { min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+.col + .col { border-left: 1px solid var(--line); }
+.col-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 14px 20px 6px; }
+.col-head h2 { font-size: 13px; letter-spacing: 0.06em; color: var(--muted); margin: 0; font-weight: 600; }
+.col-head .count { font-variant-numeric: tabular-nums; }
+.list { flex: 1; overflow-y: auto; padding: 8px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+.empty { color: var(--muted); text-align: center; margin: auto; padding: 32px 12px; max-width: 34ch; }
+.composer { border-top: 1px solid var(--line); background: var(--surface); padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); display: grid; gap: 8px; }
+.composer .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.composer .hint { color: var(--muted); font-size: 12px; }
+#postText { font-family: var(--mono); font-size: 14px; min-height: 72px; }
+#qName { max-width: 150px; padding: 6px 10px; font-size: 14px; }
+
+/* 강사 자료 카드: 칠판에 적은 내용처럼 고정폭 글꼴 */
+.post { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.post.pinned { border-color: var(--chalk); box-shadow: inset 4px 0 0 var(--chalk); }
+.post-top { display: flex; align-items: center; gap: 6px; padding: 6px 8px 0 14px; color: var(--muted); font-size: 12px; }
+.post-top time { margin-right: auto; font-variant-numeric: tabular-nums; }
+.post pre { margin: 0; padding: 6px 14px 14px; font: 14px/1.65 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.post pre a, .q-reply a { color: var(--accent); }
+
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; }
+.q.answered { background: transparent; }
+.vote { grid-row: span 3; align-self: start; display: grid; justify-items: center; gap: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 9px; min-width: 44px; line-height: 1.3; }
+.vote b { font-variant-numeric: tabular-nums; font-size: 15px; }
+.vote span { font-size: 11px; color: var(--muted); }
+.vote[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+.vote[aria-pressed=true] span { color: var(--accent); }
+.q-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.q-meta { color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tag { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: 1px 8px; }
+.q-reply { margin: 6px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.q-reply b { display: block; font-size: 12px; color: var(--accent); }
+.q-tools { display: flex; gap: 2px; flex-wrap: wrap; margin-left: -6px; }
+
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 22px; width: min(92vw, 460px); }
+dialog::backdrop { background: rgb(0 0 0 / 0.55); }
+dialog h3 { margin: 0 0 10px; font-size: 17px; }
+dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+#qrDialog { width: min(94vw, 560px); text-align: center; }
+#qrBox { background: #fff; border-radius: 10px; padding: 10px; display: inline-block; max-width: 100%; }
+#qrBox svg { display: block; width: min(70vw, 380px); height: auto; }
+#qrUrl { font-family: var(--mono); overflow-wrap: anywhere; margin: 12px 0 0; }
+#qrCode { font: 600 34px/1.2 var(--mono); letter-spacing: 0.18em; margin: 6px 0 0; }
+#replyQuote { color: var(--muted); margin: 0 0 10px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 6.5em; overflow: auto; }
+
+#toast { position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 99px; font-size: 14px; z-index: 20; max-width: 90vw; }
+
+@media (max-width: 760px) {
+  .tabs { display: flex; }
+  main.cols { grid-template-columns: minmax(0, 1fr); }
+  .col + .col { border-left: 0; }
+  main.cols[data-tab=posts] #colQuestions, main.cols[data-tab=questions] #colPosts { display: none; }
+  .col-head { padding: 10px 16px 2px; }
+  .list { padding: 8px 16px 16px; }
+  .composer { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 시작 화면 -->
+<section id="home" hidden>
+  <div class="home-inner">
+    <h1>강의 중에 <mark>프롬프트는 바로 공유</mark>하고, 질문은 바로 받으세요.</h1>
+    <p>강사가 올린 자료는 모든 수강생 화면에 즉시 나타납니다. 수강생은 가입 없이 링크나 QR 코드로 들어옵니다.</p>
+    <div class="home-cards">
+      <form class="home-card" id="createForm">
+        <h2>강의실 만들기</h2>
+        <p>강사용입니다. 만든 브라우저에서 강사 권한을 갖습니다.</p>
+        <input type="text" id="createTitle" maxlength="60" placeholder="강의 제목 (예: 프롬프트 엔지니어링 1주차)" autocomplete="off">
+        <button class="btn primary" type="submit">강의실 만들기</button>
+        <p class="error" id="createError" role="alert"></p>
+      </form>
+      <form class="home-card" id="joinForm">
+        <h2>강의실 입장</h2>
+        <p>강사가 알려준 6자리 코드를 입력하세요.</p>
+        <input type="text" id="joinCode" maxlength="6" placeholder="ABC234" autocomplete="off" autocapitalize="characters">
+        <button class="btn" type="submit">입장</button>
+        <p class="error" id="joinError" role="alert"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- 강의실 -->
+<section id="room" hidden>
+  <header class="bar">
+    <h1 id="roomTitle"></h1>
+    <div class="meta">
+      <span class="host-badge" id="hostBadge" hidden>강사</span>
+      <span class="code" id="roomCode" title="강의실 코드"></span>
+      <span class="live" id="live"><i></i><span id="online">연결 중</span></span>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnQr">QR 띄우기</button>
+      <button class="btn" id="btnInvite">초대 링크 복사</button>
+      <button class="btn" id="btnHostLink" hidden title="다른 기기에서 강사로 접속할 때 쓰는 링크">강사용 링크 복사</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tabPosts" aria-selected="true">강사 자료<span class="dot" hidden></span></button>
+    <button role="tab" id="tabQuestions" aria-selected="false">질문<span class="dot" hidden></span></button>
+  </nav>
+
+  <main class="cols" id="cols" data-tab="posts">
+    <section class="col" id="colPosts">
+      <div class="col-head"><h2>강사 자료 <span class="count" id="postCount"></span></h2></div>
+      <div class="list" id="postList"></div>
+      <form class="composer" id="postForm" hidden>
+        <textarea id="postText" maxlength="8000" placeholder="프롬프트, 코드, 링크를 붙여 넣으세요"></textarea>
+        <div class="row">
+          <span class="hint">Ctrl(⌘) + Enter로 공유</span>
+          <button class="btn primary" type="submit">공유</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="col" id="colQuestions">
+      <div class="col-head">
+        <h2>질문 <span class="count" id="qCount"></span></h2>
+        <button class="btn small ghost" id="btnSort">공감순</button>
+      </div>
+      <div class="list" id="qList"></div>
+      <form class="composer" id="qForm">
+        <textarea id="qText" maxlength="1000" rows="2" placeholder="질문을 입력하세요"></textarea>
+        <div class="row">
+          <input type="text" id="qName" maxlength="30" placeholder="이름 (비우면 익명)" autocomplete="nickname">
+          <button class="btn primary" type="submit">질문하기</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</section>
+
+<dialog id="qrDialog">
+  <h3>카메라로 찍으면 바로 입장합니다</h3>
+  <div id="qrBox"></div>
+  <p id="qrUrl"></p>
+  <p id="qrCode"></p>
+  <div class="row"><button class="btn" data-close>닫기</button></div>
+</dialog>
+
+<dialog id="replyDialog">
+  <h3>답변 달기</h3>
+  <p id="replyQuote"></p>
+  <textarea id="replyText" maxlength="2000" rows="4" placeholder="답변 (비워 두면 '답변 완료' 표시만 합니다)"></textarea>
+  <div class="row">
+    <button class="btn" data-close>취소</button>
+    <button class="btn primary" id="replySave">답변 완료로 표시</button>
+  </div>
+</dialog>
+
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+  const el = (tag, cls, txt) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt != null) n.textContent = txt;
+    return n;
+  };
+
+  let toastTimer;
+  function toast(msg) {
+    $('toast').textContent = msg; $('toast').hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 2200);
+  }
+
+  async function call(method, url, body) {
+    let res;
+    try {
+      res = await fetch(url, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+    } catch { throw new Error('서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || '요청을 처리하지 못했습니다.');
+    return data;
+  }
+
+  async function copy(textToCopy, okMsg) {
+    try { await navigator.clipboard.writeText(textToCopy); }
+    catch {
+      const ta = el('textarea'); ta.value = textToCopy; document.body.append(ta); ta.select();
+      try { document.execCommand('copy'); } finally { ta.remove(); }
+    }
+    toast(okMsg);
+  }
+
+  // 본문 속 URL을 링크로 (textContent만 사용)
+  function fillLinked(node, str) {
+    const re = /https?:\/\/[^\s<>"']+/g; let last = 0, m;
+    while ((m = re.exec(str))) {
+      node.append(str.slice(last, m.index));
+      const a = el('a', null, m[0]); a.href = m[0]; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      node.append(a); last = m.index + m[0].length;
+    }
+    node.append(str.slice(last));
+  }
+  const hhmm = (ts) => new Date(ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  // ── 시작 화면 ──
+  const match = location.pathname.match(/^\/r\/([A-Za-z0-9]{6})\/?$/);
+  if (!match) {
+    $('home').hidden = false;
+    $('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); $('createError').textContent = '';
+      try {
+        const r = await call('POST', '/api/rooms', { title: $('createTitle').value });
+        store.set('host:' + r.code, r.hostKey);
+        location.href = '/r/' + r.code;
+      } catch (err) { $('createError').textContent = err.message; }
+    });
+    $('joinForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); $('joinError').textContent = '';
+      const code = $('joinCode').value.trim().toUpperCase();
+      if (code.length !== 6) { $('joinError').textContent = '코드 6자리를 입력해 주세요.'; return; }
+      try { await call('GET', '/api/rooms/' + code); location.href = '/r/' + code; }
+      catch (err) { $('joinError').textContent = err.message; }
+    });
+    return;
+  }
+
+  // ── 강의실 ──
+  const code = match[1].toUpperCase();
+  const base = '/api/rooms/' + code;
+  const inviteUrl = location.origin + '/r/' + code;
+
+  const hashKey = new URLSearchParams(location.hash.slice(1)).get('host');
+  if (hashKey) { store.set('host:' + code, hashKey); history.replaceState(null, '', location.pathname); }
+  let hostKey = store.get('host:' + code) || '';
+  let isHost = false;
+
+  let clientId = store.get('clientId');
+  if (!clientId) { clientId = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); store.set('clientId', clientId); }
+  let voted = new Set(JSON.parse(store.get('voted:' + code) || '[]'));
+  let sortByVotes = true;
+  let state = null;
+  let seen = { posts: 0, questions: 0 };
+
+  $('room').hidden = false;
+  $('roomCode').textContent = code;
+  $('qName').value = store.get('name') || '';
+  document.title = '강의실 ' + code;
+
+  function setTab(tab) {
+    $('cols').dataset.tab = tab;
+    $('tabPosts').setAttribute('aria-selected', tab === 'posts');
+    $('tabQuestions').setAttribute('aria-selected', tab === 'questions');
+    $(tab === 'posts' ? 'tabPosts' : 'tabQuestions').querySelector('.dot').hidden = true;
+  }
+  $('tabPosts').onclick = () => setTab('posts');
+  $('tabQuestions').onclick = () => setTab('questions');
+
+  function renderPosts() {
+    const list = $('postList'); list.replaceChildren();
+    const posts = [...state.posts].sort((a, b) => (b.pinned - a.pinned) || (b.at - a.at));
+    $('postCount').textContent = posts.length || '';
+    if (!posts.length) {
+      list.append(el('p', 'empty', isHost ? '아래 입력창에 프롬프트를 붙여 넣고 공유하면 수강생 화면에 바로 나타납니다.' : '강사가 프롬프트나 자료를 공유하면 여기에 바로 나타납니다.'));
+      return;
+    }
+    for (const p of posts) {
+      const card = el('article', 'post' + (p.pinned ? ' pinned' : ''));
+      const top = el('div', 'post-top');
+      const t = el('time', null, (p.pinned ? '고정 · ' : '') + hhmm(p.at));
+      const btnCopy = el('button', 'btn small', '복사');
+      btnCopy.onclick = () => copy(p.text, '복사했습니다');
+      top.append(t, btnCopy);
+      if (isHost) {
+        const pin = el('button', 'btn small ghost', p.pinned ? '고정 해제' : '고정');
+        pin.onclick = () => act('POST', `${base}/posts/${p.id}/pin`, { hostKey });
+        const del = el('button', 'btn small ghost danger', '삭제');
+        del.onclick = () => confirmTwice(del, () => act('DELETE', `${base}/posts/${p.id}`, { hostKey }));
+        top.append(pin, del);
+      }
+      const pre = el('pre'); fillLinked(pre, p.text);
+      card.append(top, pre); list.append(card);
+    }
+  }
+
+  function renderQuestions() {
+    const list = $('qList'); list.replaceChildren();
+    const open = state.questions.filter((q) => !q.answered).length;
+    $('qCount').textContent = state.questions.length ? `${open}개 대기 / 전체 ${state.questions.length}` : '';
+    if (!state.questions.length) {
+      list.append(el('p', 'empty', '아직 질문이 없습니다. 궁금한 점을 아래에 남기면 강사에게 바로 전달됩니다.'));
+      return;
+    }
+    const qs = [...state.questions].sort((a, b) =>
+      (a.answered - b.answered) || (sortByVotes ? b.votes - a.votes : 0) || (b.at - a.at));
+    for (const q of qs) {
+      const card = el('article', 'q' + (q.answered ? ' answered' : ''));
+      const vote = el('button', 'vote');
+      vote.setAttribute('aria-pressed', voted.has(q.id));
+      vote.setAttribute('aria-label', '나도 궁금해요, 현재 ' + q.votes + '명');
+      vote.append(el('b', null, q.votes), el('span', null, '궁금'));
+      vote.onclick = async () => {
+        try {
+          const r = await call('POST', `${base}/questions/${q.id}/vote`, { clientId });
+          r.voted ? voted.add(q.id) : voted.delete(q.id);
+          store.set('voted:' + code, JSON.stringify([...voted]));
+          renderQuestions();
+        } catch (err) { toast(err.message); }
+      };
+      const body = el('p', 'q-text', q.text);
+      const meta = el('div', 'q-meta');
+      meta.append(el('span', null, q.name), el('span', null, hhmm(q.at)));
+      if (q.answered) meta.append(el('span', 'tag', '답변 완료'));
+      card.append(vote, body, meta);
+      const extra = el('div');
+      if (q.reply) {
+        const reply = el('p', 'q-reply'); reply.append(el('b', null, '강사 답변'));
+        fillLinked(reply, q.reply); extra.append(reply);
+      }
+      if (isHost) {
+        const tools = el('div', 'q-tools');
+        const ans = el('button', 'btn small ghost', q.answered ? '답변 수정' : '답변');
+        ans.onclick = () => openReply(q);
+        tools.append(ans);
+        if (q.answered) {
+          const undo = el('button', 'btn small ghost', '대기로 되돌리기');
+          undo.onclick = () => act('POST', `${base}/questions/${q.id}/answer`, { hostKey, answered: false });
+          tools.append(undo);
+        }
+        const del = el('button', 'btn small ghost danger', '삭제');
+        del.onclick = () => confirmTwice(del, () => act('DELETE', `${base}/questions/${q.id}`, { hostKey }));
+        tools.append(del); extra.append(tools);
+      }
+      if (extra.childNodes.length) card.append(extra);
+      list.append(card);
+    }
+  }
+
+  // 삭제는 같은 버튼을 한 번 더 눌러 확인
+  function confirmTwice(btn, fn) {
+    if (btn.dataset.armed) return fn();
+    btn.dataset.armed = '1'; const old = btn.textContent; btn.textContent = '정말 삭제?';
+    setTimeout(() => { delete btn.dataset.armed; btn.textContent = old; }, 2500);
+  }
+  async function act(method, url, body) {
+    try { await call(method, url, body); } catch (err) { toast(err.message); }
+  }
+
+  function render() {
+    $('roomTitle').textContent = state.title;
+    document.title = state.title + ' · 강의실 라이브';
+    $('online').textContent = state.online + '명 접속 중';
+    renderPosts(); renderQuestions();
+    // 다른 탭에 새 글이 오면 점 표시 (좁은 화면)
+    const tab = $('cols').dataset.tab;
+    if (state.posts.length > seen.posts && tab !== 'posts') $('tabPosts').querySelector('.dot').hidden = false;
+    if (state.questions.length > seen.questions && tab !== 'questions') $('tabQuestions').querySelector('.dot').hidden = false;
+    seen = { posts: state.posts.length, questions: state.questions.length };
+  }
+
+  function applyHost() {
+    $('hostBadge').hidden = !isHost; $('btnHostLink').hidden = !isHost; $('postForm').hidden = !isHost;
+    $('qForm').hidden = isHost;
+    if (state) render();
+  }
+
+  // 실시간 연결
+  function connect() {
+    const es = new EventSource(base + '/events');
+    es.onmessage = (e) => { state = JSON.parse(e.data); $('live').classList.remove('off'); render(); };
+    es.onerror = () => { $('live').classList.add('off'); $('online').textContent = '다시 연결하는 중'; };
+  }
+
+  call('GET', base + (hostKey ? '?hostKey=' + encodeURIComponent(hostKey) : '')).then((r) => {
+    isHost = r.isHost; $('roomTitle').textContent = r.title; applyHost(); connect();
+  }).catch((err) => {
+    $('room').hidden = true; $('home').hidden = false; $('joinError').textContent = err.message;
+    $('joinCode').value = code;
+    $('joinForm').addEventListener('submit', (e) => { e.preventDefault(); location.href = '/r/' + $('joinCode').value.trim().toUpperCase(); });
+    $('createForm').addEventListener('submit', (e) => { e.preventDefault(); location.href = '/'; });
+  });
+
+  // 강사: 자료 공유
+  $('postForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const t = $('postText').value.trim(); if (!t) return;
+    try { await call('POST', base + '/posts', { hostKey, text: t }); $('postText').value = ''; toast('공유했습니다'); }
+    catch (err) { toast(err.message); }
+  });
+  $('postText').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('postForm').requestSubmit(); }
+  });
+
+  // 수강생: 질문
+  $('qForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const t = $('qText').value.trim(); if (!t) return;
+    const name = $('qName').value.trim(); store.set('name', name);
+    try { await call('POST', base + '/questions', { clientId, name, text: t }); $('qText').value = ''; toast('질문을 보냈습니다'); }
+    catch (err) { toast(err.message); }
+  });
+  $('qText').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('qForm').requestSubmit(); }
+  });
+
+  $('btnSort').onclick = () => {
+    sortByVotes = !sortByVotes; $('btnSort').textContent = sortByVotes ? '공감순' : '최신순';
+    if (state) renderQuestions();
+  };
+
+  // 답변
+  let replyTarget = null;
+  function openReply(q) {
+    replyTarget = q.id; $('replyQuote').textContent = q.text; $('replyText').value = q.reply || '';
+    $('replyDialog').showModal(); $('replyText').focus();
+  }
+  $('replySave').onclick = async () => {
+    await act('POST', `${base}/questions/${replyTarget}/answer`, { hostKey, answered: true, reply: $('replyText').value });
+    $('replyDialog').close();
+  };
+
+  // 초대
+  $('btnInvite').onclick = () => copy(inviteUrl, '초대 링크를 복사했습니다');
+  $('btnHostLink').onclick = () => copy(inviteUrl + '#host=' + hostKey, '강사용 링크를 복사했습니다. 수강생에게는 공유하지 마세요.');
+  $('btnQr').onclick = () => {
+    $('qrUrl').textContent = inviteUrl; $('qrCode').textContent = code;
+    if (typeof qrcode === 'function') {
+      const qr = qrcode(0, 'M'); qr.addData(inviteUrl); qr.make();
+      $('qrBox').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
+    } else { $('qrBox').hidden = true; }
+    $('qrDialog').showModal();
+  };
+  document.querySelectorAll('[data-close]').forEach((b) => { b.onclick = () => b.closest('dialog').close(); });
+})();
+</script>
+</body>
+</html>

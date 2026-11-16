@@ -1,0 +1,4 @@
+data.json
+data.json.tmp
+*.zip
+node_modules/

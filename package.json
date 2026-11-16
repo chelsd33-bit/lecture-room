@@ -1,0 +1,8 @@
+{
+  "name": "lecture-room",
+  "version": "1.0.0",
+  "private": true,
+  "description": "강의 중 프롬프트 공유와 실시간 질문을 위한 웹앱",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
