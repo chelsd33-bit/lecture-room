@@ -303,7 +303,7 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
       <div class="list" id="qList"></div>
       <form class="composer" id="qForm">
         <div class="box">
-          <textarea id="qText" maxlength="1000" rows="1" placeholder="궁금한 점을 물어보세요" aria-label="질문"></textarea>
+          <textarea id="qText" maxlength="1000" rows="1" enterkeyhint="send" placeholder="궁금한 점을 물어보세요" aria-label="질문"></textarea>
           <div class="box-foot">
             <input type="text" id="qName" maxlength="30" placeholder="이름 (비우면 익명)" autocomplete="nickname" aria-label="이름">
             <button class="send" type="submit">질문하기</button>
@@ -656,8 +656,21 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     try { await call('POST', base + '/questions', { clientId, name, text: t }); }
     catch (err) { if (!$('qText').value) { $('qText').value = t; autosize($('qText')); } toast(err.message); }
   });
+  // Enter로 보내기, Shift+Enter는 줄바꿈.
+  // 휴대폰 한글 키보드는 Enter를 keydown으로 알려 주지 않아서(keyCode 229),
+  // 줄바꿈이 실제로 들어온 순간(input 이벤트)에 지우고 보낸다.
+  let shiftHeld = false;
   $('qText').addEventListener('keydown', (e) => {
+    shiftHeld = e.shiftKey;
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('qForm').requestSubmit(); }
+  });
+  $('qText').addEventListener('keyup', (e) => { shiftHeld = e.shiftKey; });
+  $('qText').addEventListener('input', (e) => {
+    const lineBreak = e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph' || e.data === '\n';
+    if (!lineBreak || shiftHeld) return;
+    const ta = e.target, pos = ta.selectionStart;
+    if (ta.value[pos - 1] === '\n') { ta.value = ta.value.slice(0, pos - 1) + ta.value.slice(pos); }
+    $('qForm').requestSubmit();
   });
 
   $('sortSeg').querySelectorAll('button').forEach((b) => {
