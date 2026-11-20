@@ -189,6 +189,77 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
 #replyDialog .box { background: var(--bg); }
 #replyDialog textarea { padding-bottom: 14px; min-height: 110px; }
 
+/* 실시간 띠: 타이머와 실습 체크. 휴대폰에서 어느 탭에 있어도 보이도록 탭 위에 둔다 */
+.strip { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left)); background: var(--panel); border-bottom: 1px solid var(--line); }
+.strip > * { min-width: 0; }
+.timer { display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 16px; border-radius: 14px; background: var(--bg); }
+.timer-text { display: grid; }
+.timer-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.timer-num { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.timer.low .timer-num { color: var(--danger); }
+.timer.over { background: var(--mark); color: var(--mark-ink); }
+.timer.over .timer-label { color: inherit; }
+.timer.over .tool { color: var(--mark-ink); }
+.timer.over .tool:hover { background: rgb(0 0 0 / 0.08); }
+.timer-tools { display: flex; gap: 2px; }
+.check { flex: 1 1 360px; display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; padding: 10px 10px 10px 16px; border-radius: 14px; background: var(--accent-soft); }
+.check-title { flex: 1 1 140px; min-width: 0; display: grid; }
+.check-title small { font-size: 12px; font-weight: 700; color: var(--accent); }
+.check-title b { font-size: 15px; line-height: 1.4; word-break: keep-all; overflow-wrap: anywhere; }
+.check-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.pick { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px; border-radius: 11px; font-weight: 700; font-size: 14px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+.pick:hover { box-shadow: inset 0 0 0 1px var(--muted); }
+.pick.done[aria-pressed=true] { background: var(--ok); color: var(--panel); box-shadow: none; }
+.pick.stuck[aria-pressed=true] { background: var(--danger); color: var(--panel); box-shadow: none; }
+.meter { flex: 1 1 220px; display: grid; gap: 7px; }
+.meter-bar { height: 8px; border-radius: 99px; background: var(--panel); overflow: hidden; display: flex; }
+.meter-bar i { display: block; height: 100%; transition: width 0.3s ease; }
+.meter-bar .d { background: var(--ok); }
+.meter-bar .s { background: var(--danger); }
+.meter-text { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meter-text b { color: var(--ink); font-weight: 700; }
+@keyframes arriveCheck { from { box-shadow: 0 0 0 4px var(--accent); } }
+.check.fresh { animation: arriveCheck 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { .check.fresh, .meter-bar i { animation: none; transition: none; } }
+
+/* 프롬프트 빈칸 채우기 */
+.ph { border-radius: 5px; padding: 0 3px; color: var(--mark); box-shadow: inset 0 0 0 1px rgb(255 216 77 / 0.55); cursor: pointer; }
+.ph.filled { background: var(--mark); color: var(--mark-ink); box-shadow: none; }
+.post .tool.fill-toggle { color: var(--mark); }
+.post .tool.fill-toggle[aria-expanded=true] { background: rgb(255 255 255 / 0.08); }
+.fill { border-top: 1px solid var(--slab-line); padding: 14px 18px 16px; display: grid; gap: 12px; }
+.fill label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--slab-muted); }
+.fill textarea { display: block; width: 100%; resize: none; border: 0; border-radius: 10px; padding: 10px 12px; min-height: 44px; max-height: 40vh; line-height: 1.5; font-size: 15px; background: rgb(255 255 255 / 0.07); box-shadow: inset 0 0 0 1px var(--slab-line); color: var(--slab-ink); }
+.fill textarea::placeholder { color: var(--slab-muted); }
+.fill textarea:focus { outline: 0; box-shadow: inset 0 0 0 2px var(--mark); }
+.fill-foot { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.fill-foot .note { margin-right: auto; font-size: 12px; color: var(--slab-muted); }
+
+/* 메뉴 버튼과 대화상자 */
+button.side-item { width: 100%; text-align: left; }
+.dlg-sub { margin: -4px 0 14px; color: var(--muted); font-size: 14px; word-break: keep-all; }
+.dlg-label { margin: 16px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { height: 36px; padding: 0 14px; border-radius: 10px; font-weight: 600; font-size: 14px; box-shadow: inset 0 0 0 1px var(--line); font-variant-numeric: tabular-nums; }
+.chip:hover { box-shadow: inset 0 0 0 1px var(--muted); }
+.chip[aria-pressed=true] { background: var(--btn); color: var(--btn-ink); box-shadow: none; }
+.min-input { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.min-input input { width: 72px; height: 36px; border: 0; border-radius: 10px; padding: 0 10px; text-align: right; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); font-variant-numeric: tabular-nums; }
+.min-input input:focus { outline: 0; box-shadow: inset 0 0 0 2px var(--accent); }
+#checkStatusDialog { width: min(94vw, 520px); }
+#checkStatusBody { max-height: 55vh; overflow-y: auto; display: grid; gap: 6px; }
+#checkStatusBody h4 { margin: 10px 0 2px; font-size: 14px; }
+#checkStatusBody h4 span { color: var(--muted); font-weight: 500; margin-left: 4px; }
+.who { padding: 10px 12px; border-radius: 12px; background: var(--bg); }
+.who b { font-size: 14px; }
+.who time { margin-left: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.who p { margin: 4px 0 0; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.names { margin: 0; color: var(--muted); font-size: 14px; word-break: keep-all; }
+#exportDialog { width: min(94vw, 680px); }
+#exportText { display: block; width: 100%; height: min(52vh, 460px); resize: none; border: 0; border-radius: 12px; padding: 14px; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; line-height: 1.6; }
+#stuckDialog .box textarea { padding-bottom: 14px; min-height: 90px; }
+#stuckName { margin-bottom: 8px; height: 42px; font-size: 15px; background: var(--bg); }
+
 #toast { position: fixed; left: 50%; top: calc(72px + env(safe-area-inset-top)); transform: translateX(-50%); background: var(--btn); color: var(--btn-ink); padding: 9px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 20; max-width: 90vw; box-shadow: 0 8px 30px rgb(0 0 0 / 0.25); }
 
 #btnMenu, .side-scrim { display: none; }
@@ -214,6 +285,13 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
   #qList { padding-top: 0; }
   .composer { padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); }
   .post-body { font-size: 15px; }
+  .strip { padding: 10px 12px; gap: 8px; }
+  .timer { flex: 1 1 auto; padding: 4px 6px 4px 14px; gap: 10px; }
+  .timer-text { display: flex; align-items: baseline; gap: 10px; flex: 1; }
+  .timer-num { font-size: 22px; }
+  .check { padding: 10px 10px 10px 14px; }
+  .check { flex-basis: 100%; }
+  .fill textarea { font-size: 16px; }
 }
 </style>
 </head>
@@ -251,6 +329,9 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     <nav class="side-nav" aria-label="메뉴">
       <span class="side-label">메뉴</span>
       <a class="side-item" href="" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/></svg>강의실</a>
+      <button class="side-item" id="navCheck" data-host-only hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>실습 체크</button>
+      <button class="side-item" id="navTimer" data-host-only hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>실습 타이머</button>
+      <button class="side-item" id="navExport"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>수업 정리 내보내기</button>
       <!-- 새 기능을 추가할 때 이 아래에 .side-item 을 늘리면 됩니다 -->
     </nav>
     <div class="side-foot">
@@ -269,6 +350,18 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     <span class="codechip" title="강의실 코드"><small>입장 코드</small><span class="js-code"></span></span>
     <button class="btn primary icon-only-sm" id="btnInvite" data-invite aria-label="초대"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21v.01M21 21v.01M17.5 17.5H21"/></svg><span class="btn-label">초대</span></button>
   </header>
+
+  <section class="strip" id="strip" hidden>
+    <div class="timer" id="timerBox" hidden role="timer">
+      <svg class="i" style="font-size:20px" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+      <div class="timer-text"><span class="timer-label" id="timerLabel">남은 시간</span><span class="timer-num" id="timerNum"></span></div>
+      <div class="timer-tools" data-host-only hidden>
+        <button class="tool" id="timerAdd">+1분</button>
+        <button class="tool" id="timerStop">정지</button>
+      </div>
+    </div>
+    <div class="check" id="checkBox" hidden></div>
+  </section>
 
   <nav class="tabs">
     <div class="seg" role="tablist">
@@ -346,6 +439,81 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
   </div>
 </dialog>
 
+<dialog id="checkDialog">
+  <form id="checkForm">
+    <h3>실습 체크 시작</h3>
+    <p class="dlg-sub">수강생 화면에 "완료했어요 / 막혔어요" 버튼이 나타나고, 누가 막혔는지 바로 볼 수 있습니다.</p>
+    <input class="field" id="checkTitle" maxlength="60" placeholder="실습 이름 (예: 광고 문구 3개 만들기)" autocomplete="off">
+    <div class="dlg-label">타이머도 함께 시작</div>
+    <div class="chips" id="checkMinutes">
+      <button type="button" class="chip" data-min="0" aria-pressed="true">안 함</button>
+      <button type="button" class="chip" data-min="3" aria-pressed="false">3분</button>
+      <button type="button" class="chip" data-min="5" aria-pressed="false">5분</button>
+      <button type="button" class="chip" data-min="10" aria-pressed="false">10분</button>
+    </div>
+    <p class="dlg-sub" id="checkReplaceNote" hidden style="margin:14px 0 0">진행 중인 실습은 기록으로 남기고 새 실습을 시작합니다.</p>
+    <div class="row">
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary">실습 시작</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="checkStatusDialog">
+  <h3 id="checkStatusTitle"></h3>
+  <p class="dlg-sub" id="checkStatusSummary"></p>
+  <div id="checkStatusBody"></div>
+  <div class="row">
+    <button class="btn" id="checkEnd">실습 종료</button>
+    <button class="btn" id="checkNew">새 실습 시작</button>
+    <button class="btn primary" data-close>닫기</button>
+  </div>
+</dialog>
+
+<dialog id="timerDialog">
+  <form id="timerForm">
+    <h3>실습 타이머</h3>
+    <p class="dlg-sub">모든 수강생 화면에 남은 시간이 표시됩니다.</p>
+    <div class="chips" id="timerMinutes">
+      <button type="button" class="chip" data-min="1" aria-pressed="false">1분</button>
+      <button type="button" class="chip" data-min="3" aria-pressed="false">3분</button>
+      <button type="button" class="chip" data-min="5" aria-pressed="true">5분</button>
+      <button type="button" class="chip" data-min="10" aria-pressed="false">10분</button>
+      <button type="button" class="chip" data-min="15" aria-pressed="false">15분</button>
+      <label class="min-input">직접 입력 <input type="number" id="timerCustom" min="1" max="180" inputmode="numeric" aria-label="분"> 분</label>
+    </div>
+    <p class="dlg-sub" id="timerReplaceNote" hidden style="margin:14px 0 0">진행 중인 타이머를 새 시간으로 바꿉니다.</p>
+    <div class="row">
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary">타이머 시작</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="stuckDialog">
+  <form id="stuckForm">
+    <h3>어디서 막혔나요?</h3>
+    <p class="dlg-sub">적지 않아도 됩니다. 강사에게만 보입니다.</p>
+    <input class="field" id="stuckName" maxlength="30" placeholder="이름 (비우면 익명)" autocomplete="nickname">
+    <div class="box"><textarea id="stuckNote" maxlength="200" placeholder="예: 결과가 영어로만 나와요" aria-label="막힌 부분"></textarea></div>
+    <div class="row">
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary">막혔어요 보내기</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="exportDialog">
+  <h3>수업 정리</h3>
+  <p class="dlg-sub">강사 자료, 질문과 답변, 실습 기록을 한 문서로 모았습니다. 노션이나 메모 앱에 붙여 넣으면 됩니다.</p>
+  <textarea id="exportText" readonly aria-label="수업 정리 내용"></textarea>
+  <div class="row">
+    <button class="btn" data-close>닫기</button>
+    <button class="btn" id="exportSave">파일로 저장</button>
+    <button class="btn primary" id="exportCopy">전체 복사</button>
+  </div>
+</dialog>
+
 <div id="toast" role="status" hidden></div>
 
 <script src="/qrcode.js"></script>
@@ -369,6 +537,7 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     pin: '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
     hand: '<path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
     board: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   };
   const icon = (name) => {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -452,7 +621,11 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
   let state = null;
   let seen = { posts: 0, questions: 0 };
   let known = null;            // 이미 본 글 id (새 글 강조용)
-  let copiedId = null;
+  let offset = 0;              // 서버 시계 - 내 시계 (타이머용)
+  let lastCheckId = null;
+  const openFill = new Set();  // 빈칸 패널이 열린 자료
+  let fills = {};              // 자료별 빈칸 값 { postId: { 이름: 값 } } — 이 기기에만 저장
+  try { fills = JSON.parse(store.get('fills:' + code) || '{}') || {}; } catch { fills = {}; }
 
   $('room').hidden = false;
   document.querySelectorAll('.js-code').forEach((n) => { n.textContent = code; });
@@ -472,38 +645,128 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     const p = el('p', 'empty'); p.append(icon(iconName), el('span', null, msg)); return p;
   }
 
+  // 프롬프트 속 {{빈칸}}
+  const PH = () => /\{\{\s*([^{}\n]{1,40}?)\s*\}\}/g;
+  const placeholders = (t) => [...new Set([...t.matchAll(PH())].map((m) => m[1].trim()))];
+  const filledText = (p) => p.text.replace(PH(), (m, n) => (fills[p.id]?.[n.trim()]) || m);
+  const saveFills = () => store.set('fills:' + code, JSON.stringify(fills));
+
+  function paintBody(body, p) {
+    body.replaceChildren();
+    const re = PH(); let last = 0, m;
+    while ((m = re.exec(p.text))) {
+      fillLinked(body, p.text.slice(last, m.index));
+      const name = m[1].trim(), val = fills[p.id]?.[name];
+      const ph = el('span', 'ph' + (val ? ' filled' : ''), val || m[0]);
+      ph.title = '눌러서 채우기';
+      ph.onclick = () => openFillPanel(p.id, name);
+      body.append(ph); last = m.index + m[0].length;
+    }
+    fillLinked(body, p.text.slice(last));
+  }
+
+  function copyFeedback(btn, label) {
+    btn.classList.add('done'); btn.replaceChildren(icon('check'), '복사됨');
+    clearTimeout(btn._t);
+    btn._t = setTimeout(() => { btn.classList.remove('done'); btn.replaceChildren(icon('copy'), label); }, 1800);
+  }
+
+  function buildPost(p) {
+    const card = el('article', 'post');
+    const bar = el('div', 'post-bar');
+    const t = el('time');
+    if (p.pinned) { const chip = el('span', 'pin-chip'); chip.append(icon('pin'), '고정'); t.append(chip); }
+    t.append(hhmm(p.at));
+    bar.append(t);
+    if (isHost) {
+      const pin = el('button', 'tool', p.pinned ? '고정 해제' : '고정');
+      pin.onclick = () => act('POST', `${base}/posts/${p.id}/pin`, { hostKey });
+      const del = el('button', 'tool danger', '삭제');
+      del.onclick = () => confirmTwice(del, () => act('DELETE', `${base}/posts/${p.id}`, { hostKey }));
+      bar.append(pin, del);
+    }
+    const names = placeholders(p.text);
+    let toggle;
+    if (names.length) {
+      toggle = el('button', 'tool fill-toggle'); toggle.append(icon('edit'), '빈칸 채우기');
+      toggle.setAttribute('aria-expanded', openFill.has(p.id));
+      toggle.onclick = () => (openFill.has(p.id) ? closeFillPanel(p.id) : openFillPanel(p.id));
+      bar.append(toggle);
+    }
+    const btnCopy = el('button', 'copy'); btnCopy.append(icon('copy'), '복사');
+    btnCopy.title = names.length ? '채운 빈칸을 넣어 복사합니다' : '';
+    btnCopy.onclick = async () => { await copy(filledText(p)); copyFeedback(btnCopy, '복사'); };
+    bar.append(btnCopy);
+    const body = el('div', 'post-body'); paintBody(body, p);
+    card.append(bar, body);
+
+    if (names.length) {
+      const panel = el('div', 'fill'); panel.hidden = !openFill.has(p.id);
+      for (const name of names) {
+        const label = el('label', null, name);
+        const ta = el('textarea'); ta.rows = 1; ta.dataset.name = name;
+        ta.placeholder = name + ' 입력';
+        ta.value = fills[p.id]?.[name] || '';
+        ta.addEventListener('input', () => {
+          fills[p.id] = fills[p.id] || {};
+          if (ta.value) fills[p.id][name] = ta.value; else delete fills[p.id][name];
+          paintBody(body, p); autosize(ta); saveFills();
+        });
+        label.append(ta); panel.append(label);
+      }
+      const foot = el('div', 'fill-foot');
+      foot.append(el('span', 'note', '채운 내용은 이 기기에만 저장됩니다.'));
+      const clear = el('button', 'tool', '비우기');
+      clear.onclick = () => {
+        delete fills[p.id]; saveFills(); paintBody(body, p);
+        panel.querySelectorAll('textarea').forEach((x) => { x.value = ''; autosize(x); });
+      };
+      const done = el('button', 'copy'); done.append(icon('copy'), '완성본 복사');
+      done.onclick = async () => { await copy(filledText(p)); copyFeedback(done, '완성본 복사'); };
+      foot.append(clear, done); panel.append(foot);
+      card.append(panel);
+      card._panel = panel; card._toggle = toggle;
+    }
+    return card;
+  }
+
+  const cards = new Map(); // postId -> { el, sig }
+  function openFillPanel(id, focusName) {
+    const c = cards.get(id); if (!c?.el._panel) return;
+    openFill.add(id); c.el._panel.hidden = false; c.el._toggle.setAttribute('aria-expanded', 'true');
+    c.el._panel.querySelectorAll('textarea').forEach(autosize);
+    const target = [...c.el._panel.querySelectorAll('textarea')].find((x) => !focusName || x.dataset.name === focusName);
+    target?.focus();
+  }
+  function closeFillPanel(id) {
+    const c = cards.get(id); if (!c?.el._panel) return;
+    openFill.delete(id); c.el._panel.hidden = true; c.el._toggle.setAttribute('aria-expanded', 'false');
+  }
+
   function renderPosts(fresh) {
-    const list = $('postWrap'); list.replaceChildren();
+    const wrap = $('postWrap');
     const posts = [...state.posts].sort((a, b) => (b.pinned - a.pinned) || (b.at - a.at));
     $('postCount').textContent = posts.length || '';
     if (!posts.length) {
-      list.append(emptyState('board', isHost ? '아래에 프롬프트를 붙여 넣고 공유하면 수강생 화면에 바로 나타납니다.' : '강사가 프롬프트나 자료를 공유하면 여기에 바로 나타납니다.'));
+      cards.clear();
+      wrap.replaceChildren(emptyState('board', isHost ? '아래에 프롬프트를 붙여 넣고 공유하면 수강생 화면에 바로 나타납니다.' : '강사가 프롬프트나 자료를 공유하면 여기에 바로 나타납니다.'));
       return;
     }
-    for (const p of posts) {
-      const card = el('article', 'post' + (fresh.has(p.id) ? ' fresh' : ''));
-      const bar = el('div', 'post-bar');
-      const t = el('time');
-      if (p.pinned) { const chip = el('span', 'pin-chip'); chip.append(icon('pin'), '고정'); t.append(chip); }
-      t.append(hhmm(p.at));
-      bar.append(t);
-      if (isHost) {
-        const pin = el('button', 'tool', p.pinned ? '고정 해제' : '고정');
-        pin.onclick = () => act('POST', `${base}/posts/${p.id}/pin`, { hostKey });
-        const del = el('button', 'tool danger', '삭제');
-        del.onclick = () => confirmTwice(del, () => act('DELETE', `${base}/posts/${p.id}`, { hostKey }));
-        bar.append(pin, del);
-      }
-      const done = copiedId === p.id;
-      const btnCopy = el('button', 'copy' + (done ? ' done' : ''));
-      btnCopy.append(icon(done ? 'check' : 'copy'), done ? '복사됨' : '복사');
-      btnCopy.onclick = async () => {
-        await copy(p.text); copiedId = p.id; renderPosts(new Set());
-        setTimeout(() => { if (copiedId === p.id) { copiedId = null; renderPosts(new Set()); } }, 1800);
-      };
-      bar.append(btnCopy);
-      const body = el('div', 'post-body'); fillLinked(body, p.text);
-      card.append(bar, body); list.append(card);
+    const nodes = posts.map((p) => {
+      const sig = p.text + '\u0001' + p.pinned + '\u0001' + isHost;
+      let c = cards.get(p.id);
+      if (!c || c.sig !== sig) { c = { el: buildPost(p), sig }; cards.set(p.id, c); }
+      if (fresh.has(p.id)) c.el.classList.add('fresh');
+      return c.el;
+    });
+    const ids = new Set(posts.map((p) => p.id));
+    for (const k of [...cards.keys()]) if (!ids.has(k)) { cards.delete(k); openFill.delete(k); }
+    // 순서가 그대로면 DOM을 건드리지 않는다 (입력 중인 빈칸 유지)
+    const same = wrap.children.length === nodes.length && nodes.every((n, i) => wrap.children[i] === n);
+    if (!same) {
+      const a = document.activeElement, s0 = a?.selectionStart, s1 = a?.selectionEnd;
+      wrap.replaceChildren(...nodes);
+      if (a && a !== document.body && wrap.contains(a)) { a.focus(); try { a.setSelectionRange(s0, s1); } catch {} }
     }
   }
 
@@ -562,9 +825,9 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
   }
 
   // 삭제는 같은 버튼을 한 번 더 눌러 확인
-  function confirmTwice(btn, fn) {
+  function confirmTwice(btn, fn, armedLabel = '한 번 더 눌러 삭제') {
     if (btn.dataset.armed) return fn();
-    btn.dataset.armed = '1'; const old = btn.textContent; btn.textContent = '한 번 더 눌러 삭제';
+    btn.dataset.armed = '1'; const old = btn.textContent; btn.textContent = armedLabel;
     setTimeout(() => { delete btn.dataset.armed; btn.textContent = old; }, 2500);
   }
   async function act(method, url, body) {
@@ -578,7 +841,8 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     const ids = [...state.posts, ...state.questions].map((x) => x.id);
     const fresh = new Set(known ? ids.filter((i) => !known.has(i)) : []);
     known = new Set(ids);
-    renderPosts(fresh); renderQuestions(fresh);
+    renderPosts(fresh); renderQuestions(fresh); renderStrip();
+    if ($('checkStatusDialog').open) renderCheckStatus();
     // 다른 탭에 새 글이 오면 점 표시 (좁은 화면)
     const tab = $('cols').dataset.tab;
     if (state.posts.length > seen.posts && tab !== 'posts') $('tabPosts').querySelector('.dot').hidden = false;
@@ -588,14 +852,19 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
 
   function applyHost() {
     $('hostBadge').hidden = !isHost; $('btnHostLink').hidden = !isHost; $('postForm').hidden = !isHost;
+    document.querySelectorAll('[data-host-only]').forEach((n) => { n.hidden = !isHost; });
     $('qForm').hidden = isHost;
     if (state) render();
   }
 
   // 실시간 연결
   function connect() {
-    const es = new EventSource(base + '/events');
-    es.onmessage = (e) => { state = JSON.parse(e.data); $('live').classList.remove('off'); render(); };
+    const q = '?cid=' + encodeURIComponent(clientId) + (isHost ? '&hostKey=' + encodeURIComponent(hostKey) : '');
+    const es = new EventSource(base + '/events' + q);
+    es.onmessage = (e) => {
+      state = JSON.parse(e.data); offset = state.now - Date.now();
+      $('live').classList.remove('off'); render();
+    };
     es.onerror = () => {
       $('live').classList.add('off'); $('online').textContent = '다시 연결하는 중';
       checkGone(es);
@@ -691,6 +960,225 @@ dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16
     await act('POST', `${base}/questions/${replyTarget}/answer`, { hostKey, answered: true, reply: $('replyText').value });
     $('replyDialog').close();
   };
+
+  // ── 실습 타이머 ──
+  const fmt = (sec) => {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = sec % 60;
+    const mm = String(m).padStart(h ? 2 : 1, '0'), ss = String(x).padStart(2, '0');
+    return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+  };
+  let buzzedFor = null;
+  function tickTimer() {
+    const t = state?.timer, box = $('timerBox');
+    const left = t ? t.endsAt - (Date.now() + offset) : 0;
+    // 끝난 타이머는 수강생 화면에서 2분 뒤 사라진다. 강사는 '닫기'로 직접 정리
+    const show = !!t && (isHost || left > -120000);
+    box.hidden = !show;
+    if (!show) return;
+    const over = left <= 0;
+    box.classList.toggle('over', over);
+    box.classList.toggle('low', !over && left <= 30000);
+    $('timerNum').textContent = over ? '시간 종료' : fmt(Math.ceil(left / 1000));
+    $('timerLabel').textContent = over ? '실습 시간이 끝났습니다' : '남은 시간';
+    $('timerStop').textContent = over ? '닫기' : '정지';
+    if (over && buzzedFor !== t.endsAt && left > -3000) { buzzedFor = t.endsAt; try { navigator.vibrate?.(300); } catch {} }
+  }
+  function syncStrip() { $('strip').hidden = $('timerBox').hidden && $('checkBox').hidden; }
+  setInterval(() => { if (state) { tickTimer(); syncStrip(); } }, 250);
+  $('timerAdd').onclick = () => act('POST', base + '/timer/add', { hostKey, seconds: 60 });
+  $('timerStop').onclick = () => act('POST', base + '/timer', { hostKey, seconds: 0 });
+
+  function pickChips(group, onPick) {
+    group.querySelectorAll('.chip').forEach((b) => {
+      b.onclick = () => {
+        group.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x === b));
+        onPick?.(b);
+      };
+    });
+  }
+  const pickedMin = (group) => Number(group.querySelector('.chip[aria-pressed=true]')?.dataset.min || 0);
+  pickChips($('timerMinutes'), () => { $('timerCustom').value = ''; });
+  $('timerCustom').addEventListener('input', () => {
+    $('timerMinutes').querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  });
+  function openTimerDialog() {
+    $('timerReplaceNote').hidden = !state?.timer;
+    $('timerDialog').showModal();
+  }
+  $('timerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const custom = Number($('timerCustom').value);
+    const min = custom > 0 ? custom : pickedMin($('timerMinutes'));
+    if (!(min > 0 && min <= 180)) { toast('1분에서 180분 사이로 정해 주세요.'); return; }
+    try { await call('POST', base + '/timer', { hostKey, seconds: Math.round(min * 60) }); $('timerDialog').close(); }
+    catch (err) { toast(err.message); }
+  });
+
+  // ── 실습 체크 ──
+  function renderStrip() { tickTimer(); renderCheck(); syncStrip(); }
+
+  async function respond(status, extra = {}) {
+    const c = state?.check; if (!c) return;
+    try {
+      await call('POST', base + '/check/respond', {
+        clientId, checkId: c.id, status,
+        name: extra.name ?? (store.get('name') || ''), note: extra.note || '',
+      });
+    } catch (err) { toast(err.message); }
+  }
+
+  function renderCheck() {
+    const c = state.check, box = $('checkBox');
+    if (!c) { box.hidden = true; box.replaceChildren(); lastCheckId = null; return; }
+    box.hidden = false; box.replaceChildren();
+    if (lastCheckId !== null && lastCheckId !== c.id) { box.classList.remove('fresh'); void box.offsetWidth; box.classList.add('fresh'); }
+    if (lastCheckId === null && !isHost) box.classList.add('fresh');
+    lastCheckId = c.id;
+    const title = el('div', 'check-title'); title.append(el('small', null, '실습'), el('b', null, c.title));
+    box.append(title);
+    if (isHost) {
+      const total = Math.max(c.participants, c.done + c.stuck, 1);
+      const waiting = Math.max(0, c.participants - c.done - c.stuck);
+      const meter = el('div', 'meter');
+      const bar = el('div', 'meter-bar');
+      const d = el('i', 'd'); d.style.width = (c.done / total * 100) + '%';
+      const s2 = el('i', 's'); s2.style.width = (c.stuck / total * 100) + '%';
+      bar.append(d, s2);
+      const txt = el('div', 'meter-text');
+      const part = (label, n) => { const sp = el('span', null, label + ' '); sp.append(el('b', null, n)); return sp; };
+      txt.append(part('완료', c.done), part('막힘', c.stuck), part('진행 중', waiting));
+      meter.append(bar, txt);
+      const actions = el('div', 'check-actions');
+      const view = el('button', 'btn', c.stuck ? `막힌 사람 ${c.stuck}명 보기` : '현황 보기');
+      view.onclick = openCheckStatus;
+      const end = el('button', 'btn', '종료');
+      end.onclick = () => confirmTwice(end, () => act('DELETE', base + '/check', { hostKey }), '한 번 더 눌러 종료');
+      actions.append(view, end);
+      box.append(meter, actions);
+    } else {
+      const actions = el('div', 'check-actions');
+      const done = el('button', 'pick done'); done.append(icon('check'), c.mine === 'done' ? '완료함' : '완료했어요');
+      done.setAttribute('aria-pressed', c.mine === 'done');
+      done.onclick = () => respond(c.mine === 'done' ? 'none' : 'done');
+      const stuck = el('button', 'pick stuck', c.mine === 'stuck' ? '도움 요청함' : '막혔어요');
+      stuck.setAttribute('aria-pressed', c.mine === 'stuck');
+      stuck.onclick = () => {
+        if (c.mine === 'stuck') return respond('none');
+        $('stuckName').value = store.get('name') || $('qName').value || '';
+        $('stuckNote').value = '';
+        $('stuckDialog').showModal(); $('stuckNote').focus();
+      };
+      actions.append(done, stuck);
+      box.append(actions);
+    }
+  }
+
+  $('stuckForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = $('stuckName').value.trim(); store.set('name', name); $('qName').value = name;
+    $('stuckDialog').close();
+    await respond('stuck', { name, note: $('stuckNote').value });
+  });
+
+  function renderCheckStatus() {
+    const c = state.check;
+    if (!c) { $('checkStatusDialog').close(); return; }
+    const list = c.list || [];
+    const stuck = list.filter((x) => x.status === 'stuck'), done = list.filter((x) => x.status === 'done');
+    const waiting = Math.max(0, c.participants - c.done - c.stuck);
+    $('checkStatusTitle').textContent = c.title;
+    $('checkStatusSummary').textContent = `완료 ${c.done}명, 막힘 ${c.stuck}명, 진행 중 ${waiting}명 (${hhmm(c.startedAt)} 시작)`;
+    const body = $('checkStatusBody'); body.replaceChildren();
+    const head = (label, n) => { const h = el('h4', null, label); h.append(el('span', null, n)); return h; };
+    body.append(head('막혔어요', stuck.length));
+    if (!stuck.length) body.append(el('p', 'names', '아직 없습니다.'));
+    for (const x of stuck) {
+      const w = el('div', 'who'); w.append(el('b', null, x.name), el('time', null, hhmm(x.at)));
+      if (x.note) w.append(el('p', null, x.note));
+      body.append(w);
+    }
+    body.append(head('완료', done.length));
+    body.append(el('p', 'names', done.length ? done.map((x) => x.name).join(', ') : '아직 없습니다.'));
+  }
+  function openCheckStatus() { renderCheckStatus(); $('checkStatusDialog').showModal(); }
+  function openCheckDialog() {
+    $('checkReplaceNote').hidden = !state?.check;
+    $('checkTitle').value = '';
+    $('checkMinutes').querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', x.dataset.min === '0'));
+    $('checkDialog').showModal(); $('checkTitle').focus();
+  }
+  pickChips($('checkMinutes'));
+  $('checkForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const min = pickedMin($('checkMinutes'));
+    try {
+      await call('POST', base + '/check', { hostKey, title: $('checkTitle').value });
+      if (min) await call('POST', base + '/timer', { hostKey, seconds: min * 60 });
+      $('checkDialog').close();
+    } catch (err) { toast(err.message); }
+  });
+  $('checkNew').onclick = () => { $('checkStatusDialog').close(); openCheckDialog(); };
+  $('checkEnd').onclick = () => confirmTwice($('checkEnd'), async () => {
+    await act('DELETE', base + '/check', { hostKey }); $('checkStatusDialog').close();
+  }, '한 번 더 눌러 종료');
+
+  // ── 수업 정리 내보내기 ──
+  function fence(t) {
+    const run = Math.max(0, ...[...t.matchAll(/`+/g)].map((m) => m[0].length));
+    const f = '`'.repeat(Math.max(3, run + 1));
+    return f + '\n' + t + '\n' + f;
+  }
+  function buildExport() {
+    const now = new Date(Date.now() + offset);
+    const date = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+    const L = [`# ${state.title}`, '', `${date} 수업 정리 (강의실 ${code})`, ''];
+    const posts = [...state.posts].sort((a, b) => a.at - b.at);
+    L.push('## 강사 자료', '');
+    if (!posts.length) L.push('공유한 자료가 없습니다.', '');
+    posts.forEach((p, i) => L.push(`### ${i + 1}. ${hhmm(p.at)}${p.pinned ? ' (고정)' : ''}`, '', fence(p.text), ''));
+    const qs = [...state.questions].sort((a, b) => a.at - b.at);
+    L.push('## 질문과 답변', '');
+    if (!qs.length) L.push('받은 질문이 없습니다.', '');
+    qs.forEach((q, i) => {
+      L.push(`### Q${i + 1}. ${q.name}, ${hhmm(q.at)}${q.votes ? `, 공감 ${q.votes}` : ''}`, '', q.text, '');
+      const a = q.reply ? '**답변** ' + q.reply : (q.answered ? '답변 완료' : '(답변 대기)');
+      L.push(a.split('\n').map((x) => '> ' + x).join('\n'), '');
+    });
+    const checks = [...(state.checkHistory || [])];
+    if (state.check) checks.push({ ...state.check, endedAt: null });
+    if (checks.length) {
+      L.push('## 실습 기록', '');
+      for (const c of checks) {
+        const when = hhmm(c.startedAt) + (c.endedAt ? '~' + hhmm(c.endedAt) : ' 시작, 진행 중');
+        L.push(`- ${c.title} (${when}): 완료 ${c.done}명, 막힘 ${c.stuck}명, 참여 ${c.participants}명`);
+      }
+      L.push('');
+    }
+    return L.join('\n');
+  }
+  function openExport() {
+    if (!state) return;
+    $('exportText').value = buildExport();
+    $('exportDialog').showModal();
+    $('exportText').scrollTop = 0;
+  }
+  $('exportCopy').onclick = () => copy($('exportText').value, '수업 정리를 복사했습니다');
+  $('exportSave').onclick = () => {
+    const d = new Date(Date.now() + offset);
+    const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    // 한글 파일 이름은 일부 브라우저에서 'download'로 바뀌어 저장되므로 영문으로 짓는다
+    const name = `class-notes-${ymd}-${code}.md`;
+    const url = URL.createObjectURL(new Blob([$('exportText').value], { type: 'text/markdown;charset=utf-8' }));
+    const a = el('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('파일을 저장했습니다. 저장되지 않으면 "전체 복사"를 써 주세요.');
+  };
+
+  // 메뉴
+  const fromMenu = (fn) => () => { setMenu(false); if (state) fn(); };
+  $('navCheck').onclick = fromMenu(() => (state.check ? openCheckStatus() : openCheckDialog()));
+  $('navTimer').onclick = fromMenu(openTimerDialog);
+  $('navExport').onclick = fromMenu(openExport);
 
   // 초대
   const openInvite = () => {
